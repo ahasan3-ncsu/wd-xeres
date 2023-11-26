@@ -1,0 +1,15 @@
+# Material file for iradina U_in_UMo
+
+[UMo]
+IsVacuum=0
+ElementCount=2
+Density=5.01e+22
+ElementsZ=92,42
+ElementsM=238.0,95.95
+ElementsConc=0.78,0.22
+ElementsDispEnergy=35.6,54.3
+ElementsLattEnergy=3,6.8
+ElementsSurfEnergy=5.42,6.83
+ElementsReplEnergy=-1,-1
+IonSurfEnergy=0.0
+
