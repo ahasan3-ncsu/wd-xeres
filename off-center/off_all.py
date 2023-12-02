@@ -1,46 +1,62 @@
+import numpy as np
 from statistics import mean, stdev
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
-dis1 = [0, 10, 20, 30, 40, 50]
-off1 = [[2.5186, 3.124, 4.337, 5, 5], [5, 4, 5, 5, 5], [4, 3, 5, 3, 5],
-        [5, 5, 5, 5, 5], [5, 5, 4, 1.9096, 4], [0, 0, 0, 0.388, 0]]
+dis1 = [0, 10, 20, 30, 40] # 50]
+off1 = [[3, 3, 4, 4, 4], [4, 4, 4, 3, 4], [3, 4, 3, 3, 2],
+        [1, 4, 3, 4, 4], [2, 4, 2, 0, 4]] # [0, 0, 0, 0, 0]]
 
-dis2 = [0, 10, 20, 30, 40, 50, 60]
-off2 = [[52.3426, 25, 32, 9, 27.2652],
-       [22.2112, 111.623, 23.9394, 21, 33.4126],
-       [68.4026, 73.1948, 13, 17.9568, 35.3728],
-       [119.945, 117.652, 102.396, 130.05, 90.1042],
-       [96.3196, 105.36, 46.5972, 96.7936, 1.0638],
-       [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
+dis2 = [0, 10, 20, 30, 40, 50] # 60]
+off2 = [[55, 25, 32, 9, 29], [22, 16, 23, 21, 17], [13, 11, 15, 19, 16],
+        [5, 7, 5, 3, 9], [1, 0, 1, 0, 1], [0, 0, 0, 0, 0]] # [0, 0, 0, 0, 0]]
 
-dis3 = [0, 10, 20, 30, 40, 50, 60, 70]
-off3 = [[18, 19, 15, 20.1414, 30], [22.8474, 37.2818, 16, 26, 21],
-       [73.8208, 5.305, 31.5914, 15.0558, 112.302],
-       [75.4598, 210.346, 137.68, 176.634, 60.9794],
-       [98.5702, 77.4058, 59.1956, 34.266, 80.3402],
-       [0, 1, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
+dis3 = [0, 10, 20, 30, 40, 50, 60] # 70]
+off3 = [[18, 20, 16, 15, 30], [11, 38, 16, 27, 21],
+        [11, 6, 18, 14, 15], [9, 10, 9, 7, 5], [1, 2, 4, 3, 0],
+        [0, 1, 0, 1, 0], [0, 0, 0, 0, 0]] # [0, 0, 0, 0, 0]]
 
-dis4 = [0, 10, 20, 30, 40, 50, 60, 70, 80]
-off4 = [[21, 20, 19, 17, 16], [17, 14.179, 23, 26.8656, 28.685],
-       [15, 17.4696, 29.1584, 7.8388, 18],
-       [122.21, 15.1884, 21.9306, 49.7226, 39.1022],
-       [19.9604, 50.8334, 36.4408, 53.979, 15.0956], [1, 0, 0, 3, 3.0538],
-       [0, 0, 0, 2, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
+dis4 = [0, 10, 20, 30, 40, 50, 60, 70] # 80]
+off4 = [[21, 20, 21, 17, 16], [18, 14, 25, 25, 16], [15, 16, 21, 4, 19],
+        [5, 11, 11, 16, 8], [3, 5, 2, 4, 4], [1, 0, 0, 3, 3],
+        [0, 0, 0, 2, 0], [0, 0, 0, 0, 0]] # [0, 0, 0, 0, 0]]
 
-avgs1 = [mean(x)/5 for x in off1]
-avgs2 = [mean(x)/138 for x in off2]
-avgs3 = [mean(x)/641 for x in off3]
-avgs4 = [mean(x)/1758 for x in off4]
+radii = [5, 15, 25, 35]
+xe_num = [5, 138, 641, 1758]
 
-frac1 = [x/avgs1[0] for x in avgs1]
-frac2 = [x/avgs2[0] for x in avgs2]
-frac3 = [x/avgs3[0] for x in avgs3]
-frac4 = [x/avgs4[0] for x in avgs4]
+averages = []; std_devs = []
+for i, off in enumerate([off1, off2, off3, off4]):
+    averages.append([mean(x)/xe_num[i] for x in off])
+    std_devs.append([stdev(x)/xe_num[i] for x in off])
 
-plt.plot(dis1, frac1, label='5 ang radius')
-plt.plot(dis2, frac2, label='15 ang radius')
-plt.plot(dis3, frac3, label='25 ang radius')
-plt.plot(dis4, frac4, label='35 ang radius')
+#for i, j, k in zip([dis2, dis3, dis4], averages[1:], std_devs[1:]):
+#    plt.errorbar(i, j, k)
+#plt.show()
+
+fractions = []; devs = []
+for avg, dev in zip(averages, std_devs):
+    fractions.append([x/avg[0] for x in avg])
+    devs.append([x/avg[0] for x in dev])
+
+Xs = []; Ys = []
+for i, (r, dis) in enumerate(zip(radii[1:], [dis2, dis3, dis4])):
+    norm_dis = [x/dis[-1] for x in dis]
+    plt.errorbar(norm_dis, fractions[i+1], devs[i+1], marker='o',
+                 ls='', capsize=3, label=f'{r} ang radius')
+    Xs.extend(norm_dis)
+    Ys.extend(fractions[i+1])
+
+X = [x for x, y in sorted(zip(Xs, Ys))]
+Y = [y for x, y in sorted(zip(Xs, Ys))]
+#plt.scatter(X, Y)
+
+def logistic(x, l, k, c):
+    return l / (1 + np.exp(k * x - c))
+
+p, c = curve_fit(logistic, X, Y, p0=[1, 8, 3])
+print(*p)
+xs = np.linspace(0, 1, 100)
+plt.plot(xs, logistic(xs, *p), c='k', label='Logistic fit')
 
 plt.legend()
 plt.show()
