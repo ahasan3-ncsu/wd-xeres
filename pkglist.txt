@@ -1,0 +1,6 @@
+numpy
+matplotlib
+scipy
+ovito
+jupyterlab
+jupyterlab-vim
