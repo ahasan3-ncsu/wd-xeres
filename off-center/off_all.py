@@ -29,20 +29,18 @@ for i, off in enumerate([off1, off2, off3, off4]):
     averages.append([mean(x)/xe_num[i] for x in off])
     std_devs.append([stdev(x)/xe_num[i] for x in off])
 
-#for i, j, k in zip([dis2, dis3, dis4], averages[1:], std_devs[1:]):
-#    plt.errorbar(i, j, k)
-#plt.show()
-
 fractions = []; devs = []
 for avg, dev in zip(averages, std_devs):
     fractions.append([x/avg[0] for x in avg])
     devs.append([x/avg[0] for x in dev])
 
+plt.figure(figsize=(5,4))
 Xs = []; Ys = []
-for i, (r, dis) in enumerate(zip(radii[1:], [dis2, dis3, dis4])):
+for i, (r, dis, m, c) in enumerate(zip(radii[1:], [dis2, dis3, dis4],
+                                       ['o', 'v', '^'], [0.2, 0.5, 0.8])):
     norm_dis = [x/dis[-1] for x in dis]
-    plt.errorbar(norm_dis, fractions[i+1], devs[i+1], marker='o',
-                 ls='', capsize=3, label=f'{r} ang radius')
+    plt.errorbar(norm_dis, fractions[i+1], devs[i+1], ls='', capsize=3,
+                 marker=m, color=plt.cm.jet(c), label=f'{r} '+r'$\AA$')
     Xs.extend(norm_dis)
     Ys.extend(fractions[i+1])
 
@@ -56,7 +54,11 @@ def logistic(x, l, k, c):
 p, c = curve_fit(logistic, X, Y, p0=[1, 8, 3])
 print(*p)
 xs = np.linspace(0, 1, 100)
-plt.plot(xs, logistic(xs, *p), c='k', label='Logistic fit')
+plt.plot(xs, logistic(xs, *p), c='k', label='Fit')
 
+plt.xlabel(r'$r/r_c$')
+plt.ylabel(r'$\chi/\chi_0$')
 plt.legend()
-plt.show()
+#plt.show()
+plt.tight_layout()
+plt.savefig('offcentered.pdf')

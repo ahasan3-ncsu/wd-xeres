@@ -35,7 +35,7 @@ size_35 = [[0, 2, 1.5492, 0, 0.496], [5, 15, 16, 8, 13.8516],
 
 size_40 = [[1.6872, 6.2584, 6.1962, 5, 1.029], [13, 27.3302, 1, 11, 10],
            [16, 53.3704, 13, 22, 17], [13, 14, 20, 26, 23.7902],
-           [25.8116, 26, 35, 30, 36], [29.3, 54.2, 56.3604, 52.6, 45.8]]
+           [25.8116, 26, 35, 30, 36], [25, 50, 46, 33, 35]]
 
 radii = [5, 10, 15, 20, 25, 30, 35, 40]
 energies = [5, 10, 15, 20, 25, 30]
@@ -47,9 +47,11 @@ for i, sz in enumerate([size_5, size_10, size_15, size_20,
     averages.append([mean(x)/xe_num[i] for x in sz])
     std_devs.append([stdev(x)/xe_num[i] for x in sz])
 
-for r, y_data, e_data in zip(radii, averages, std_devs):
-    plt.errorbar(energies, y_data, e_data, color=plt.cm.jet(r/40),
-                 marker='o', ls='', capsize=3, label=f'{r}')
+plt.figure(figsize=(7,4))
+for r, y_data, e_data, mark in zip(radii, averages, std_devs,
+                                   ['o','s','p','x','v','^', '>', '<']):
+    plt.errorbar(energies, y_data, e_data, color=plt.cm.gist_rainbow(r/40),
+                 marker=mark, ls='', capsize=3, label=f'{r} '+r'$\AA$')
 
 def chi(x, alpha):
     return 1 - np.exp(-alpha * x)
@@ -62,22 +64,31 @@ print('alphas: ', alphs)
 
 ens = np.linspace(0, 30, 100)
 for a, r in zip(alphs, radii):
-    plt.plot(ens, chi(ens, a), c=plt.cm.jet(r/40))
+    plt.plot(ens, chi(ens, a), c=plt.cm.gist_rainbow(r/40))
 
-plt.legend()
-plt.show()
+plt.xlabel(r'Effective energy transferred to the lattice, $S_{e,eff}$ (keV/nm)')
+plt.ylabel(r'Fraction of re-solved Xe, $\chi_0$')
+plt.legend(handletextpad=0)
+#plt.show()
+plt.tight_layout()
+plt.savefig('resolutionVsRadius.pdf')
 
 def sat(x, a, b):
     return a / x**b
 
-p, c = curve_fit(sat, radii, alphs)
+p, c = curve_fit(sat, radii, alphs, sigma=[5, 3, 2, 1, 1, 1, 1, 1])
 print('saturating factor: ', *p)
 
 xs = np.linspace(4, 44, num=100)
 ys = sat(xs, *p)
 
+plt.figure(figsize=(3,4))
 plt.scatter(radii, alphs, color=plt.cm.jet(0.2), label=r'$\alpha$')
 plt.plot(xs, ys, color=plt.cm.jet(0.8), label='Fit')
 
+plt.xlabel(r'Bubble radius, $R_{bubble}$ ($\AA$)')
+plt.ylabel(r'Saturation factor, $\alpha$ (nm/keV)')
 plt.legend()
-plt.show()
+#plt.show()
+plt.tight_layout()
+plt.savefig('saturationFactor.pdf')
