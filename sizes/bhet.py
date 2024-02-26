@@ -24,8 +24,8 @@ markers = itertools.cycle(('o','s','p','v','x','+'))
 tints = itertools.cycle((0.2,0.8,0.4,0.6,0.0,1.0))
 plt.figure(figsize=(5,4))
 
-radii = np.linspace(1, 41, 25)
-#radii = np.linspace(1, 101, 25)
+#radii = np.linspace(1, 41, 25)
+radii = np.linspace(1, 101, 25)
 
 for zeta in [0.55, 0.7, 0.85, 1]:
     bhet = []
@@ -33,9 +33,10 @@ for zeta in [0.55, 0.7, 0.85, 1]:
     for rb in radii:
         xe = quad(sat_Xe, 0, 8, args=(rb, zeta))[0]
         sr = quad(sat_Sr, 0, 8, args=(rb, zeta))[0]
-        b = 0.225 * np.pi * (rb+R_spk)**2 * (xe+sr)/2 * 1e-20 * 1e14
+        b = 0.225 * np.pi * (rb+R_spk)**2 * (xe + sr) * 1e-20 * 1e14
         bhet.append(b)
 
+    print(bhet)
     plt.plot(radii, bhet, color=plt.cm.jet(next(tints)),
              marker=next(markers), ms=3, label=r'$\zeta$'+f'={zeta}')
 
@@ -52,8 +53,8 @@ plt.plot(radii, yd, color=plt.cm.jet(next(tints)),
 
 plt.xlabel(r'Bubble radius, $R_{bubble}$ ($\AA$)')
 plt.ylabel(r'Re-solution rate, $b_{het}$ ($s^{-1}$)')
-plt.ylim([1e-4, 1e-2])
-#plt.ylim([1e-7, 1e-2])
+#plt.ylim([1e-4, 1e-1])
+plt.ylim([1e-7, 1e-1])
 plt.yscale('log')
 plt.legend()
 plt.tight_layout()
