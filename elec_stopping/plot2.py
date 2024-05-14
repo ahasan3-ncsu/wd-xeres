@@ -23,23 +23,34 @@ xdim = [x/1000 for x in xdim]
 Sr = [x/1e10 for x in Sr]
 Xe = [x/1e10 for x in Xe]
 
+def avg_contiguous(data, window_size):
+    avg_data = []
+    for i in range(0, len(data), window_size):
+        chunk = data[i:i+window_size]
+        avg = sum(chunk)/len(chunk)
+        avg_data.append(avg)
+    return avg_data
+
 plt.figure(figsize=(5,4))
 
-plt.scatter(xdim, Sr, s=1, marker='o', label='Sr-94, 101.1 MeV')
-plt.scatter(xdim, Xe, s=1, marker='*', label='Xe-140, 69.4 MeV')
-
+plt.scatter(avg_contiguous(xdim, 100), avg_contiguous(Sr, 100), s=15,
+            marker='^', color=plt.cm.jet(0.8), label='Sr-94, 101.1 MeV')
 p1, c1 = curve_fit(func, xdim, Sr, bounds=((0), (50)))
 print('Sr: ', p1)
 fit1 = [func(x, *p1) for x in xdim]
-plt.plot(xdim, fit1, c='k')
+plt.plot(xdim, fit1, ls='solid',
+         c=plt.cm.jet(0.7), label=r'Fit to Sr-94 $S_e$')
 
+plt.scatter(avg_contiguous(xdim, 100), avg_contiguous(Xe, 100), s=15,
+            marker='s', color=plt.cm.jet(0.2), label='Xe-140, 69.4 MeV')
 p2, c2 = curve_fit(func, xdim, Xe, bounds=((0), (50)))
 print('Xe: ', p2)
 fit2 = [func(x, *p2) for x in xdim]
-plt.plot(xdim, fit2, c='k')
+plt.plot(xdim, fit2, ls='dashed',
+         c=plt.cm.jet(0.3), label=r'Fit to Xe-140 $S_e$')
 
 plt.xlabel(r'Distance ($\mu$m)')
 plt.ylabel(r'Electronic Stopping Power, $S_e$ (keV/nm)')
 plt.legend()
 plt.tight_layout()
-plt.savefig('iradina.jpg', dpi=300)
+plt.savefig('elec_stopping.pdf')

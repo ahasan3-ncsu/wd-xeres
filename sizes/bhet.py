@@ -20,6 +20,9 @@ def sat_Xe(x, r=20, zeta=0.7):
 def sat_Sr(x, r=20, zeta=0.7):
     return 1 - np.exp(-alpha(r) * S_Sr(x) * zeta)
 
+lines = itertools.cycle((
+    'solid', 'dotted', 'dashed', 'dashdot', (0, (1, 1)), (0, (5, 1))
+))
 markers = itertools.cycle(('o','s','p','v','x','+'))
 tints = itertools.cycle((0.2,0.8,0.4,0.6,0.0,1.0))
 plt.figure(figsize=(5,4))
@@ -37,24 +40,24 @@ for zeta in [0.55, 0.7, 0.85, 1]:
         bhet.append(b)
 
     print(bhet)
-    plt.plot(radii, bhet, color=plt.cm.jet(next(tints)),
+    plt.plot(radii, bhet, color=plt.cm.jet(next(tints)), ls=next(lines),
              marker=next(markers), ms=3, label=r'$\zeta$'+f'={zeta}')
 
-def bdart(r):
-    if r <= 50:
-        G = 1
-    else:
-        G = 1 - ((r-0.03)/r)**3
-    return 2e-18 * G * 1e14
-
-yd = [bdart(x) for x in radii]
-plt.plot(radii, yd, color=plt.cm.jet(next(tints)),
-         marker=next(markers), label='DART')
+    #def bdart(r):
+    #    if r <= 50:
+    #        G = 1
+    #    else:
+    #        G = 1 - ((r-0.03)/r)**3
+    #    return 2e-18 * G * 1e14
+    #
+    #yd = [bdart(x) for x in radii]
+    #plt.plot(radii, yd, color=plt.cm.jet(next(tints)), ls=next(lines),
+    #         marker=next(markers), label='DART')
 
 plt.xlabel(r'Bubble radius, $R_{bubble}$ ($\AA$)')
 plt.ylabel(r'Re-solution rate, $b_{het}$ ($s^{-1}$)')
-#plt.ylim([1e-4, 1e-1])
-plt.ylim([1e-7, 1e-1])
+plt.ylim([1e-4, 1e-1])
+#plt.ylim([1e-7, 1e-1])
 plt.yscale('log')
 plt.legend()
 plt.tight_layout()
