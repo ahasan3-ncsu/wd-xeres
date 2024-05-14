@@ -1,3 +1,4 @@
+import itertools
 import numpy as np
 from statistics import mean, stdev
 import matplotlib.pyplot as plt
@@ -62,9 +63,13 @@ for y_data in averages:
     alphs.append(*p)
 print('alphas: ', alphs)
 
+lines = itertools.cycle((
+    'solid', 'dotted', 'dashed', 'dashdot', (0, (1, 1)), (0, (5, 1))
+))
+
 ens = np.linspace(0, 30, 100)
 for a, r in zip(alphs, radii):
-    plt.plot(ens, chi(ens, a), c=plt.cm.gist_rainbow(r/40))
+    plt.plot(ens, chi(ens, a), ls=next(lines), c=plt.cm.gist_rainbow(r/40))
 
 plt.xlabel(r'Effective energy transferred to the lattice, $S_{e,eff}$ (keV/nm)')
 plt.ylabel(r'Fraction of re-solved Xe, $\chi_0$')
