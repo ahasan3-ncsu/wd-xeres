@@ -1,0 +1,18 @@
+TTM
+x Check the energy deposited into the electronic system.
+x Print out total energy of electronic subsystem and the energy
+  transferred from the electronic to the atomic subsystem.
+x Try to implement a cumulative sum of the energy transferred.
+x Why does the TTM command output wrong energy? Different formula.
+x Use ttm/mod as a substitute for ttm. Use a constant C_e.
+  The electronic system doesn't transfer energy at all!
+- Check different initial temp profiles (diff R_spike, diff formulas).
+  Don't worry about the formula. Just make sure the total energy from
+  the fix output makes sense.
+
+Reading
+- Read the SHI papers by Kolotova et al.
+- Read Matthews' re-solution in UC paper.
+
+Low Priority
+- Make plotting scripts.

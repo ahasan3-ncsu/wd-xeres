@@ -1,0 +1,154 @@
+#######################################
+######      Initialization
+#######################################
+
+log				log.knock1
+units			metal
+boundary		p p p
+atom_style		full
+
+#######################################
+######      Variables
+#######################################
+
+variable		DT equal dt
+variable		TYM equal time
+variable		V equal vol
+variable		PE equal pe
+variable		TE equal etotal
+variable		Pr equal press
+variable		T equal temp
+variable		Lx equal lx
+variable		Ly equal ly
+variable		Lz equal lz
+
+variable		latCons equal 5.4
+variable		xLen equal 60
+variable		yLen equal 60
+variable		zLen equal 60
+
+variable		MoPart equal 0.22
+variable		XeNum equal 400
+
+variable		bubRad equal 20.0
+variable		bubShl equal 10.0
+variable		pkaEn equal 500000.0
+variable		spkRad equal 10.0
+
+variable		Tmp equal 400
+variable		seed equal 24451
+
+#######################################
+######      Geometry
+#######################################
+
+lattice			fcc ${latCons}
+region			brick block 0 ${xLen} 0 ${yLen} 0 ${zLen} units lattice
+create_box		3 brick
+create_atoms	1 region brick
+
+lattice			custom ${latCons} a1 1 0 0 a2 0 1 0 a3 0 0 1 &
+					basis 0.25 0.25 0.25 basis 0.75 0.25 0.25 basis 0.25 0.75 0.25 basis 0.25 0.25 0.75 &
+					basis 0.75 0.75 0.25 basis 0.75 0.25 0.75 basis 0.25 0.75 0.75 basis 0.75 0.75 0.75
+create_atoms	2 region brick
+
+variable		U equal 1
+variable		O equal 2
+variable		Xe equal 3
+
+mass			1 238.029
+mass			2 15.9994
+mass			3 131.293
+
+set				type ${U} charge 2.2208
+set				type ${O} charge -1.1104
+set				type ${Xe} charge 0
+
+kspace_style	pppm 1.0e-5
+
+pair_style		hybrid/overlay coul/long 11 eam/alloy table linear 1000 pppm zbl 1.0 2.0
+pair_coeff		* * coul/long
+pair_coeff		* * eam/alloy CeThUNpPuAmCmO.eam.alloy U O NULL
+pair_coeff		${U} ${Xe} table CRG_gas_potentials.lmptab Xe-U 11
+pair_coeff		${O} ${Xe} table CRG_gas_potentials.lmptab Xe-O 11
+pair_coeff		${Xe} ${Xe} table CRG_gas_potentials.lmptab Xe-Xe 11
+pair_coeff		1 1 zbl 92 92
+pair_coeff		1 2 zbl 92 8
+pair_coeff		1 3 zbl 92 54
+pair_coeff		2 2 zbl 8 8
+pair_coeff		2 3 zbl 8 54
+pair_coeff		3 3 zbl 54 54
+
+region			void sphere $((xhi-xlo)/2) $((yhi-ylo)/2) $((zhi-zlo)/2) &
+					${bubRad} units box
+delete_atoms	region void
+region			resolved sphere $((xhi-xlo)/2) $((yhi-ylo)/2) $((zhi-zlo)/2) &
+					$(v_bubRad+v_bubShl) units box side out
+
+create_atoms	3 random ${XeNum} ${seed} void overlap 0.8 maxtry 100
+
+region			spike cylinder z $((xhi-xlo)/2) $((yhi-ylo)/2) ${spkRad} EDGE EDGE units box
+group			spatom region spike
+variable		eff_temp equal ${pkaEn}/count(spatom)*(2/3)/(8.617333*10^(-5))
+
+group			u type 1
+group			o type 2
+group			xe type 3
+variable		c1 equal count(u)
+variable		c2 equal count(o)
+variable		c3 equal count(xe)
+variable		c4 equal count(xe,resolved)
+
+compute			voro all voronoi/atom occupation
+variable		isVac atom c_voro[1]==0
+variable		isInt atom c_voro[2]>1
+compute			Nvac all reduce sum v_isVac
+compute			Nint all reduce sum v_isInt
+
+#######################################
+######      Relax NPT
+#######################################
+
+reset_atoms		id sort yes
+velocity		all create ${Tmp} ${seed}
+
+fix				cp1 all npt temp ${Tmp} ${Tmp} 0.1 aniso 0 0 0.1
+fix				av1 all ave/time 1 5000 5000 v_DT v_TYM v_T v_PE v_TE v_Pr v_Lx v_Ly v_Lz &
+					v_V v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint file relax.knock1
+
+dump			1 all atom 5000 dumpRel.knock1
+
+thermo_style	custom step temp pe press vol v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint
+thermo			1000
+
+timestep		0.002
+run				50000
+
+unfix			cp1
+unfix			av1
+undump			1
+
+#######################################
+######      PKA
+#######################################
+
+region			wall block $(xlo+3*v_latCons) $(xhi-3*v_latCons) $(ylo+3*v_latCons) $(yhi-3*v_latCons) &
+					EDGE EDGE units box side out
+group			edge region wall
+
+velocity		spatom scale ${eff_temp}
+
+fix				casc all nve
+fix				sink edge temp/csvr ${Tmp} ${Tmp} 0.005 ${seed}
+
+fix				av1 all ave/time 1 5 50 v_DT v_TYM v_T v_PE v_TE v_Pr v_Lx v_Ly v_Lz &
+					v_V v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint file spikeavg.knock1
+
+fix				time all dt/reset 1 NULL NULL 0.025 units box
+
+dump			2 all atom 5000 dumpSpike.knock1
+dump_modify		2 every/time 0.1
+
+thermo			1000
+
+run				100000

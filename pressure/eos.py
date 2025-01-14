@@ -16,12 +16,12 @@ def fun(xevac):
 
     return p
 
-x = np.arange(0.05, 1, 0.05)
+x = np.arange(0.05, 0.50, 0.05)
 y = [fun(i) for i in x]
 
-z = np.polyfit(x, y, 4)
-pp = np.poly1d(z)
-fit = [pp(i) for i in x]
+#z = np.polyfit(x, y, 4)
+#pp = np.poly1d(z)
+#fit = [pp(i) for i in x]
 
 def ill(x, a, b):
     return a * x**2 + b * x**4
@@ -31,6 +31,5 @@ print(p)
 fit2 = [ill(i, *p) for i in x]
 
 plt.scatter(x, y)
-plt.plot(x, fit, 'k')
 plt.plot(x, fit2, 'r')
 plt.show()

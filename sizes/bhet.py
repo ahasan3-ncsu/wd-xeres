@@ -30,7 +30,7 @@ plt.figure(figsize=(5,4))
 #radii = np.linspace(1, 41, 25)
 radii = np.linspace(1, 101, 25)
 
-for zeta in [0.55, 0.65, 0.75, 0.85, 0.95]:
+for zeta in [0.001, 0.01, 0.1, 0.5, 0.95]:
     bhet = []
 
     for rb in radii:

@@ -1,3 +1,7 @@
 dump*
 .xeres
 *.pdf
+*.mp4
+
+iradinaGUI
+.ipynb_checkpoints

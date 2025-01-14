@@ -1,0 +1,53 @@
+units metal
+atom_style full
+boundary p p p
+
+read_data sg5_tilt_xe_GB
+
+mass 2 232.0377
+mass 1 15.9994
+mass 3 131.293
+
+variable O equal 1
+variable Th equal 2
+variable Xe equal 3
+
+set type ${O} charge -1.1104
+set type ${Th} charge 2.2208
+set type ${Xe} charge 0
+
+group oxygen type ${O}
+group thorium type ${Th}
+group xenon type ${Xe} 
+
+kspace_style pppm 1.0e-5
+variable SR_CUTOFF equal 11.0
+
+pair_style hybrid/overlay coul/long ${SR_CUTOFF} eam/alloy table linear 1000 pppm buck ${SR_CUTOFF}
+pair_coeff   *    *    coul/long
+pair_coeff   *    *    eam/alloy CeThUNpPuAmCmO.eam.alloy O Th NULL
+
+pair_coeff   ${Xe} ${Xe} table CRG_gas_potentials.lmptab Xe-Xe 11
+pair_coeff   ${O}  ${Xe} buck 1877.5990 0.3401910 46.478139
+pair_coeff   ${Th} ${Xe} buck 6238.0739 0.3130134 20.013067
+
+neighbor 2 bin
+neigh_modify every 1 delay 5 check yes
+
+velocity all create 300  837965
+
+fix f1 all npt temp 300 300 1 iso 0 0 1
+
+timestep 0.001
+
+thermo_style custom step time temp press pe ke etotal vol lx ly lz pxx pyy pzz 
+thermo 600
+thermo_modify flush yes
+
+dump mydump all custom 300000 thoria_sig5_tilt_xe_GB.dump.* id type x y z 
+
+restart 1500000 thoria_sig5_tilt_xe_GB.restart
+
+run 3000000
+
+write_data thoria_sig5_tilt_xe_GB.data.*

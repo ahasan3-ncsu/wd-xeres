@@ -1,0 +1,229 @@
+units           metal
+
+boundary        p p p
+atom_style      full
+
+variable        V equal vol
+variable        T equal temp
+variable        P equal press
+variable        E equal pe
+
+lattice         bcc 3.43
+#region         1 block 0 80 0 80 0 80 units lattice
+region          1 block 0 160 0 160 0 160 units lattice
+create_box      3 1
+create_atoms    1 region 1
+
+variable XC equal (xhi-xlo)/2
+variable YC equal (yhi-ylo)/2
+variable ZC equal (zhi-zlo)/2
+
+region Void sphere ${XC} ${YC} ${ZC} 20.0 units box
+delete_atoms region Void
+region outer_area sphere ${XC} ${YC} ${ZC} 51.0  units	box
+region inner_area sphere ${XC} ${YC} ${ZC} 49.0  units	box
+
+region resolved sphere ${XC} ${YC} ${ZC} 30.39 units box side out
+
+pair_style      hybrid/overlay eam/alloy zbl 1.0 2.0
+pair_coeff      * * eam/alloy UMoXe.ADP.txt U Mo Xe
+pair_coeff      1 1 zbl 92 92
+pair_coeff      1 2 zbl 92 42
+pair_coeff      1 3 zbl 92 54
+pair_coeff      2 2 zbl 42 42
+pair_coeff      2 3 zbl 42 54
+pair_coeff      3 3 zbl 54 54
+
+group           u type 1
+
+set             group u type/fraction 2 0.23 555558
+
+group           mo type 2
+
+group           umo union u mo
+
+#set             group umo type/fraction 3 0.0001 123456
+
+create_atoms 3 random 700 321654  Void overlap 0.8 maxtry 10000
+
+group		u clear
+group		mo clear
+
+group           u type 1
+group           mo type 2
+group           xe type 3
+
+#group resolvedXe dynamic xe region resolved every 1
+
+variable numberEscaped equal count(xe,resolved)
+
+group inner_atoms region inner_area 
+group outer_atoms region outer_area
+
+group shell_atoms subtract outer_atoms inner_atoms 
+
+variable numShell equal count(shell_atoms)
+
+set group shell_atoms mol 0
+
+reset_mol_ids  shell_atoms single yes
+
+
+region rxlo block $(xlo) $(xlo+3.43) $(ylo) $(yhi) $(zlo) $(zhi) units box
+group gxlo region rxlo
+
+region rxhi block $(xhi-3.43) $(xhi) $(ylo) $(yhi)  $(zlo) $(zhi) units box
+group gxhi region rxhi
+
+region rylo block $(xlo) $(xhi) $(ylo) $(ylo+3.43) $(zlo) $(zhi) units box
+group gylo region rylo
+
+region ryhi block $(xlo)  $(xhi) $(yhi-3.43) $(yhi) $(zlo) $(zhi) units box
+group gyhi region ryhi
+
+region rzlo block $(xlo) $(xhi) $(ylo) $(yhi) $(zlo) $(zlo+3.43) units box 
+group gzlo region rzlo
+
+region rzhi block $(xlo) $(xhi) $(ylo) $(yhi) $(zhi-3.43) $(zhi) units box
+group gzhi region rzhi
+
+group edgeAtoms union gxlo gylo gzlo gxhi gyhi gzhi
+
+group innerAtoms subtract all edgeAtoms
+
+
+variable pkaMol equal ceil(random(0,v_numShell,321654))
+print ${numShell}
+print ${pkaMol}
+group PKA molecule ${pkaMol}
+
+variable        c1 equal count(u)
+variable        c2 equal count(mo)
+variable        c3 equal count(xe)
+
+compute         1 all pe
+compute         2 u msd
+compute         3 mo msd
+compute         4 xe msd
+
+timestep        0.002
+
+# Temperature
+reset_atom_ids sort yes
+velocity        all create 800 12345678
+
+# relax initial structure
+#fix 1 all nve
+
+fix              1 all npt temp 800 400 0.2 iso 0 0 2.0
+#fix             3 all ave/time 1 100 1000 v_T v_E v_V v_P file avg.file
+#fix             4 all ave/time 1 5000 30000 v_T v_E v_V v_P file endavg.file
+
+dump            1 all atom 5000 relax.dump
+
+thermo_style    custom step time temp pe press vol v_c1 v_c2 spcpu
+thermo          50
+
+run             75000
+
+# end relaxation
+
+# clean up
+
+unfix		1
+#unfix		3
+#unfix		4
+undump		1
+
+# Setup Cascade run
+
+variable        seed equal round(random(1,999999,123456))
+variable        seed2 equal round(random(1,999999,123456))
+variable        seed3 equal round(random(1,999999,123456))
+
+#variable        PKAID equal round(random(400000,700000,${seed}))
+
+variable        PKAE equal 50000
+
+### These are the angles for a random direction PKA 
+variable        thetaI equal round(random(0,90,${seed2}))
+variable        phiI equal round(random(0,90,${seed3}))
+
+# Setting variables so they dont change
+variable        theta equal ${thetaI}
+variable        phi equal ${phiI}
+
+# Converting angles to direction
+variable        dirx equal cos(${theta}*3.141592/180)*cos(${phi}*3.141592/180)
+variable        diry equal sin(${theta}*3.141592/180)*cos(${phi}*3.141592/180)
+variable        dirz equal sin(${phi}*3.141592/180)
+
+#variable        dirx equal cos(${theta})*cos(${phi}*3.141592/180)
+
+
+## Velo to scale from 1kev to PKAE for U atom
+#variable       VEL1 equal ${dirx}*284.65*sqrt(${PKAE}/1000)
+#variable       VEL2 equal ${diry}*284.65*sqrt(${PKAE}/1000)
+#variable       VEL3 equal ${dirz}*284.65*sqrt(${PKAE}/1000)
+
+variable       VEL1 equal ${dirx}*98.227*sqrt(${PKAE}/238.028)
+variable       VEL2 equal ${diry}*98.227*sqrt(${PKAE}/238.028)
+variable       VEL3 equal ${dirz}*98.227*sqrt(${PKAE}/238.028)
+
+#group           PKA  id ${PKAID}
+velocity        PKA set ${VEL1} ${VEL2} ${VEL3} units box
+
+fix box_momentum all momentum 1000 linear 1 1 1
+
+compute vorTess all voronoi/atom occupation
+
+variable isVac atom c_vorTess[1]==0
+
+variable isInt atom c_vorTess[2]>1
+
+compute NumbVac all reduce sum v_isVac
+
+compute NumbInt all reduce sum v_isInt
+
+# End setup Cascade
+
+# Run Cascade
+
+timestep        0.00005
+
+fix             1 innerAtoms nve
+fix             5 edgeAtoms nvt temp 400 400 $(100*dt)
+
+fix             3 all ave/time 1 100 1000 v_T v_E v_V v_P c_2[4] c_3[4] c_4[4] v_numberEscaped c_NumbVac c_NumbInt file pkaavg.file
+
+dump            1 all atom 10000 pka.dump
+
+#variable myTime equal time
+
+#fix printTimes all ave/time 1 1 10000 v_myTime file frameTimes.dat
+
+#dump_modify     1 every/time 
+run             30000
+
+timestep	0.0001
+
+unfix		5
+fix             5 edgeAtoms nvt temp 400 400 $(100*dt)
+
+run		30000
+
+timestep        0.001
+
+unfix		5
+fix             5 edgeAtoms nvt temp 400 400 $(100*dt)
+
+run             40000
+
+timestep	0.002
+
+unfix		5
+fix             5 edgeAtoms nvt temp 400 400 $(100*dt)
+
+run		40000
+
+# End
