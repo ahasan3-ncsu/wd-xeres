@@ -1,0 +1,187 @@
+#######################################
+######      Initialization
+#######################################
+
+log				log.knock4
+units			metal
+boundary		p p p
+atom_style		atomic
+
+#######################################
+######      Variables
+#######################################
+
+variable		DT equal dt
+variable		TIME equal time
+variable		V equal vol
+variable		PE equal pe
+variable		TE equal etotal
+variable		Pr equal press
+variable		T equal temp
+variable		Lx equal lx
+variable		Ly equal ly
+variable		Lz equal lz
+
+variable		latCons equal 3.43
+variable		xLen equal 20
+variable		yLen equal 20
+variable		zLen equal 20
+
+variable		MoPart equal 0.22
+variable		XeNum equal 30
+
+variable		bubRad equal 10.0
+variable		bubShl equal 0.0
+variable		spkRad equal 35.0
+## Energy is deposited into the electronic subsystem via Te.in
+#variable		extLatEn equal 192080.0
+
+variable		Tmp equal 400
+variable		seed equal 464359
+
+#######################################
+######      Geometry
+#######################################
+
+lattice			bcc ${latCons}
+region			brick block 0 ${xLen} 0 ${yLen} 0 ${zLen} units lattice
+create_box		3 brick
+create_atoms	1 region brick
+
+region			void sphere $((xhi-xlo)/2) $((yhi-ylo)/2) $((zhi-zlo)/2) &
+					${bubRad} units box
+delete_atoms	region void
+region			resolved sphere $((xhi-xlo)/2) $((yhi-ylo)/2) $((zhi-zlo)/2) &
+					$(v_bubRad+v_bubShl) units box side out
+
+pair_style		hybrid/overlay adp zbl 1.0 2.0
+pair_coeff		* * adp /home/hasaatmj/builds/illumine/potentials/UMoXe.adp U Mo Xe
+pair_coeff		1 1 zbl 92 92
+pair_coeff		1 2 zbl 92 42
+pair_coeff		1 3 zbl 92 54
+pair_coeff		2 2 zbl 42 42
+pair_coeff		2 3 zbl 42 54
+pair_coeff		3 3 zbl 54 54
+
+set				region brick type/ratio 2 ${MoPart} ${seed}
+create_atoms	3 random ${XeNum} ${seed} void overlap 0.8 maxtry 100
+
+region			spike cylinder z $((xhi-xlo)/2) $((yhi-ylo)/2) ${spkRad} EDGE EDGE units box
+group			spatom region spike
+compute			spTemp spatom temp
+
+## We are not depositing energy into the lattice subsystem
+#variable		eff_temp equal ${extLatEn}/count(spatom)*(2/3)/(8.617333*10^(-5))
+
+group			u type 1
+group			mo type 2
+group			xe type 3
+variable		c1 equal count(u)
+variable		c2 equal count(mo)
+variable		c3 equal count(xe)
+variable		c4 equal count(xe,resolved)
+
+## Unused voronoi calculation
+#compute			voro all voronoi/atom occupation
+#variable		isVac atom c_voro[1]==0
+#variable		isInt atom c_voro[2]>1
+#compute			Nvac all reduce sum v_isVac
+#compute			Nint all reduce sum v_isInt
+
+#######################################
+######      Relax NPT
+#######################################
+
+#reset_atoms		id sort yes
+velocity		all create ${Tmp} ${seed}
+
+## Unused variables for plain ttm
+#variable			gamma equal 4e-9
+#variable			rho_e equal 0.625
+#variable			D_e equal 10000
+#variable			C_e equal (v_gamma)*(v_Tmp)
+#variable			k_e equal (v_D_e)*(v_rho_e)*(v_C_e)
+#variable			gamma_p equal 76
+#variable			gamma_s equal 245
+#variable			v_0 equal 27
+
+variable			Nx equal 20
+variable			Ny equal 20
+variable			Nz equal 1
+
+fix					2tm all ttm/mod ${seed} ttparams.txt ${Nx} ${Ny} ${Nz} infile Te.in outfile 100 Te.knock4
+
+fix					cent all recenter INIT INIT INIT
+
+## Unused electron/stopping
+#fix				elec all electron/stopping 9.0 Srim_UMoXe.es
+
+## Unused plain ttm command
+#fix					2tm all ttm ${seed} ${C_e} ${rho_e} ${k_e} &
+#						${gamma_p} ${gamma_s} ${v_0} &
+#						${Nx} ${Ny} ${Nz} infile Te.in outfile 100 Te.knock4
+
+## Unused ttm/grid
+#fix					2tm all ttm/grid ${seed} ${C_e} ${rho_e} ${k_e} &
+#						${gamma_p} ${gamma_s} ${v_0} &
+#						${Nx} ${Ny} ${Nz} infile Te.in
+#compute				2tm all property/grid ${Nx} ${Ny} ${Nz} id ix iy iz
+#dump				2tm all grid 1 dumpTe.knock4 c_2tm:grid:data[*] f_2tm:grid:data
+
+## Unused NPT relaxation
+#fix				cp1 all npt temp ${Tmp} ${Tmp} 0.1 aniso 0 0 0.1
+#fix				av1 all ave/time 1 5 50 v_DT v_TIME v_T c_spTemp v_PE v_TE v_Pr v_Lx v_Ly v_Lz v_V v_c1 v_c2 v_c3 v_c4 file relax.knock4
+
+#dump			1 all atom 50 dumpRel.knock4
+
+#thermo_style	custom step dt time temp c_spTemp pe press vol v_c1 v_c2 v_c3 v_c4
+#thermo			50
+
+#run				100
+#
+#unfix			cp1
+#unfix			av1
+#undump			1
+
+#######################################
+######      Cylindrical Chunks
+#######################################
+
+compute			cc all chunk/atom bin/cylinder z lower $(zhi-zlo) $((xhi-xlo)/2) $((yhi-ylo)/2) 0 $((xhi-xlo)/2) 10 units lattice
+
+compute			tmpChunk all temp/chunk cc temp
+fix				tmp all ave/time 1 5 50 c_tmpChunk[1] file tmpChunk.knock4 mode vector
+
+compute			engChunk all pe/atom
+fix				eng all ave/chunk 1 5 50 cc c_engChunk file engChunk.knock4
+
+#######################################
+######      Thermal Spike
+#######################################
+
+region			wall block $(xlo+4*v_latCons) $(xhi-4*v_latCons) $(ylo+4*v_latCons) $(yhi-4*v_latCons) &
+					EDGE EDGE units box side out
+group			edge region wall
+
+## Not changing lattic temp
+#velocity		spatom scale ${eff_temp}
+
+fix				sink edge temp/csvr ${Tmp} ${Tmp} $(100.0*dt) ${seed}
+#fix				sink edge temp/berendsen ${Tmp} ${Tmp} 0.5
+fix				casc all nve
+
+unfix			cent
+fix				cent all recenter INIT INIT INIT
+
+fix				av1 all ave/time 1 5 50 v_DT v_TIME v_T c_spTemp v_PE v_TE v_Pr v_Lx v_Ly v_Lz &
+					v_V v_c1 v_c2 v_c3 v_c4 file spikeavg.knock4
+
+fix				time all dt/reset 10 NULL NULL 0.01 units box
+
+dump			2 all atom 50 dumpSpike.knock4
+#dump_modify		2 every/time 0.1
+
+thermo_style	custom step dt time temp c_spTemp pe press vol v_c1 v_c2 v_c3 v_c4 f_2tm[1] f_2tm[2]
+thermo			5
+
+run				50000
