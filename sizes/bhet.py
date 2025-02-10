@@ -48,6 +48,7 @@ def bdart(r):
         G = 1
     else:
         G = 1 - ((r-0.03)/r)**3
+    #return 5e-17 * G * 1e14
     return 2e-18 * G * 1e14
 
 yd = [bdart(x) for x in radii]

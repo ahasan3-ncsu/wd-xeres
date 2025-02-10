@@ -15,10 +15,10 @@ def el_sp_heat_integral(T_e):
     T_temp = T_e/1000.0
     return rho_e * (
         (esheat_0 + C_limit)*T_e         \
-    	+ esheat_1*T_temp*T_e/2.0        \
-    	+ esheat_2*T_temp*T_temp*T_e/3.0 \
-    	+ esheat_3*pow(T_temp,3)*T_e/4.0 \
-    	+ esheat_4*pow(T_temp,4)*T_e/5.0 \
+        + esheat_1*T_temp*T_e/2.0        \
+        + esheat_2*T_temp*T_temp*T_e/3.0 \
+        + esheat_3*pow(T_temp,3)*T_e/4.0 \
+        + esheat_4*pow(T_temp,4)*T_e/5.0 \
     )
 
 ## Supercell setup
