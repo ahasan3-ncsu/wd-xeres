@@ -23,14 +23,14 @@ def sat_Sr(x, r=20, zeta=0.7):
 lines = itertools.cycle((
     'solid', 'dotted', 'dashed', 'dashdot', (0, (1, 1)), (0, (5, 1))
 ))
-markers = itertools.cycle(('o','s','p','v','x','*'))
-tints = itertools.cycle((0.2,0.8,0.4,0.6,0.0,1.0))
+markers = itertools.cycle(('o','s','p','*','v','x'))
+tints = itertools.cycle((0.2,0.8,0.4,1.0,0.6,0.0))
 plt.figure(figsize=(5,4))
 
 #radii = np.linspace(1, 41, 25)
 radii = np.linspace(1, 101, 25)
 
-for zeta in [0.001, 0.01, 0.1, 0.5, 0.95]:
+for zeta in [0.001, 0.01, 0.1]:
     bhet = []
 
     for rb in radii:

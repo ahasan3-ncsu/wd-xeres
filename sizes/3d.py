@@ -19,18 +19,18 @@ def sat_Xe(x, r=20, zeta=0.7):
 def sat_Sr(x, r=20, zeta=0.7):
     return 1 - np.exp(-alpha(r) * S_Sr(x) * zeta)
 
-radii = np.linspace(1, 41, 25)
-pres = np.linspace(0.1, 0.5, 10)
+radii = np.linspace(1, 21, 100)
+pres = np.linspace(0.1, 0.5, 20)
 
 bhet = []
 for rb in radii:
-    xe = quad(sat_Xe, 0, 8, args=(rb, 0.75))[0]
-    sr = quad(sat_Sr, 0, 8, args=(rb, 0.75))[0]
+    xe = quad(sat_Xe, 0, 8, args=(rb, 0.01))[0]
+    sr = quad(sat_Sr, 0, 8, args=(rb, 0.01))[0]
     b = 0.225 * np.pi * (rb+R_spk)**2 * (xe + sr) * 1e-20 * 1e14
     bhet.append(b)
 
 def pared(r, p):
-    delta = (41 - 1) / (25 - 1)
+    delta = (21 - 1) / (100 - 1)
     ind = round((r - 1) / delta)
     return bhet[ind] * 0.2 / p
 
@@ -51,4 +51,3 @@ ax.set_ylabel(r'Xe/vacancy ratio, $\phi$')
 ax.set_zlabel(r'Re-solution rate, $b_{het}$ ($s^{-1}$)')
 plt.tight_layout()
 plt.savefig('3d.pdf')
-#plt.show()
