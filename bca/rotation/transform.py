@@ -89,7 +89,7 @@ ax1.quiver(
     length=0.05, normalize=True, color=v_colo, alpha=0.7
 )
 
-ax1.set_title(r'Original ($\vec{p}, \vec{v}$)')
+ax1.set_title(r"Original $(\mathbf{r_i}, \mathbf{v_i})$")
 ax1.set_xlim([-0.4, 0.4])
 ax1.set_ylim([-0.4, 0.4])
 ax1.set_zlim([-0.4, 0.4])
@@ -107,7 +107,7 @@ ax2.quiver(
     length=0.05, normalize=True, color=v_colo, alpha=0.7
 )
 
-ax2.set_title(r'Transformed ($\vec{p}, \vec{v}$)')
+ax2.set_title(r"Transformed $(\mathbf{r_i'}, \mathbf{v_i'})$")
 ax2.set_xlim([-0.4, 0.4])
 ax2.set_ylim([-0.4, 0.4])
 ax2.set_zlim([-0.4, 0.4])
