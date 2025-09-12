@@ -1,0 +1,49 @@
+#Use with SPHERE geometry option only
+[options]
+name = "ballbox_"
+track_trajectories = true
+track_recoils = true
+track_recoil_trajectories = true
+track_displacements = true
+track_energy_losses = true
+num_threads = 4
+num_chunks = 2
+electronic_stopping_mode = "INTERPOLATED"
+mean_free_path_model = {"THRESHOLD"={density=1.5e28}}
+
+[material_parameters]
+energy_unit = "EV"
+mass_unit = "AMU"
+Eb = [3.0, 3.0, 0.0]
+Es = [5.27, 5.32, 0.0]
+Ec = [1.0, 1.0, 1.0]
+Ed = [35.6, 54.3, 0.0]
+Z = [92, 42, 54]
+m = [238.0, 95.95, 134.0]
+
+[particle_parameters]
+length_unit = "ANGSTROM"
+energy_unit = "EV"
+mass_unit = "AMU"
+N = [1, 1]
+m = [97.0, 136.0]
+Z = [39, 53]
+E = [101.3e2, 74.6e2]
+Ec = [1.0, 1.0]
+Es = [3.58, 3.63]
+pos = [[-78.0, 0.0, 0.0], [-78.0, 0.0, 0.0]]
+dir = [
+	[0.9999999999984769, 1.7453292519934434e-6, 0.0],
+	[0.9999999999984769, 1.7453292519934434e-6, 0.0]
+]
+
+[geometry_input]
+length_unit = "ANGSTROM"
+
+sphere_radius = 40.0
+sphere_densities = [0.0, 0.0, 0.01]
+sphere_electronic_stopping_correction_factor = 1.0
+
+cuboid_corners = [[-80.0, -80.0, -80.0], [80.0, 80.0, 80.0]]
+cuboid_densities = [0.039, 0.011, 0.0]
+cuboid_electronic_stopping_correction_factor = 1.0
