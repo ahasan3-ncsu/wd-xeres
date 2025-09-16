@@ -17,23 +17,12 @@ canvas = scene.SceneCanvas(keys='interactive', show=True)
 view = canvas.central_widget.add_view()
 view.camera = 'turntable'
 
-v1 = np.empty((2 * pos_ori.shape[0], 3))
-v1[0::2] = pos_ori
-v1[1::2] = pos_fin
-v2 = np.hstack((pos_ori, pos_fin))
-
 cmap = color.colormap.get_colormap('autumn')
-arrow_colors = cmap.map(Z_norm)
-arrow_colors_repeated = np.repeat(arrow_colors, 2, axis=0)
+z_colors = cmap.map(Z_norm)
 
-arrow = scene.visuals.Arrow(
-    v1,
-    arrows=v2,
-    arrow_size=3,
-    connect='segments',
-    color=arrow_colors_repeated,
-    parent=view.scene
-)
+scatter = scene.visuals.Markers()
+scatter.set_data(pos_fin, edge_width=0, face_color=z_colors, size=5)
+view.add(scatter)
 
 sphere = scene.visuals.Sphere(
     radius=40,
