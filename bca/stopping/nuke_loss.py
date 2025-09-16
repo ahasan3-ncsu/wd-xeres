@@ -5,7 +5,6 @@ jar = np.loadtxt('umo_0D_energy_loss.output', delimiter=',')
 
 x = jar[:, 4]
 E_nuke = jar[:, 2]
-E_elec = jar[:, 3]
 
 del jar
 
@@ -18,34 +17,34 @@ bin_centers = (bins[:-1] + bins[1:]) / 2
 x_bin = np.digitize(x, bins)
 
 nuke_loss_per_bin = np.zeros(len(bins) - 1)
-elec_loss_per_bin = np.zeros(len(bins) - 1)
 
 np.add.at(nuke_loss_per_bin, x_bin - 1, E_nuke)
-np.add.at(elec_loss_per_bin, x_bin - 1, E_elec)
+cum_nuke_loss = np.cumsum(nuke_loss_per_bin)
 
 plt.figure(figsize=(5, 4))
 
 plt.plot(
     bin_centers / 1e4,
-    nuke_loss_per_bin / bin_width / 1e4,
-    label='Nuclear',
+    nuke_loss_per_bin / 1e8,
+    label='Local',
     marker='o',
     markersize=3,
     color='red'
 )
 plt.plot(
     bin_centers / 1e4,
-    elec_loss_per_bin / bin_width / 1e4,
-    label='Electronic',
-    marker='^',
+    cum_nuke_loss / 1e8,
+    label='Cumulative',
+    marker='s',
     markersize=3,
-    color='blue'
+    ls='-.',
+    color='peru'
 )
 
 plt.title(r'$^{97}_{39}Y$, 101.3 MeV')
 # plt.title(r'$^{136}_{53}I$, 74.6 MeV')
 plt.xlabel(r'Distance ($\mu$m)')
-plt.ylabel(r'Energy loss (keV/nm)')
+plt.ylabel(r'Nuclear energy loss (MeV)')
 
 plt.legend()
-plt.savefig('energy_loss.pdf')
+plt.savefig('nuke_loss.pdf')
