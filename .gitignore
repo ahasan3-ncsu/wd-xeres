@@ -2,6 +2,7 @@ dump*
 .xeres
 *.pdf
 *.mp4
+*.output
 
 iradinaGUI
 .ipynb_checkpoints
