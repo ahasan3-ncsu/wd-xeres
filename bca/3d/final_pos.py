@@ -7,18 +7,20 @@ fileName = sys.argv[1]
 jar = np.loadtxt(fileName, delimiter=',')
 
 Z = jar[:, 1]
-Z_min, Z_max = np.min(Z), np.max(Z)
-Z_norm = (Z - Z_min) / (Z_max - Z_min + 1e-8)
-
-pos_ori = jar[:, 3:6]
 pos_fin = jar[:, 6:9]
 
 canvas = scene.SceneCanvas(keys='interactive', show=True)
 view = canvas.central_widget.add_view()
 view.camera = 'turntable'
 
-cmap = color.colormap.get_colormap('autumn')
-z_colors = cmap.map(Z_norm)
+custom_colors = {
+    39: (0, 1, 1, 1), # Y  = Cyan
+    42: (0, 0, 1, 1), # Mo = Blue
+    53: (1, 0, 1, 1), # I  = Purple
+    54: (1, 1, 0, 1), # Xe = Yellow
+    92: (1, 0, 0, 1)  # U  = Red
+}
+z_colors = [custom_colors.get(z, (0.5, 0.5, 0.5, 1)) for z in Z]
 
 scatter = scene.visuals.Markers()
 scatter.set_data(pos_fin, edge_width=0, face_color=z_colors, size=5)
@@ -27,7 +29,7 @@ view.add(scatter)
 sphere = scene.visuals.Sphere(
     radius=40,
     method='latitude',
-    color=(0.5, 0.5, 0.8, 0.2),
+    color=(0.5, 0.5, 0.8, 0.3),
     parent=view.scene
 )
 

@@ -1,15 +1,12 @@
 import sys
 import numpy as np
-from vispy import app, scene, color
+from vispy import app, scene
 
 # feed a "displacements.output" file
 fileName = sys.argv[1]
 jar = np.loadtxt(fileName, delimiter=',')
 
 Z = jar[:, 1]
-Z_min, Z_max = np.min(Z), np.max(Z)
-Z_norm = (Z - Z_min) / (Z_max - Z_min + 1e-8)
-
 pos_ori = jar[:, 3:6]
 pos_fin = jar[:, 6:9]
 
@@ -22,23 +19,29 @@ v1[0::2] = pos_ori
 v1[1::2] = pos_fin
 v2 = np.hstack((pos_ori, pos_fin))
 
-cmap = color.colormap.get_colormap('autumn')
-arrow_colors = cmap.map(Z_norm)
-arrow_colors_repeated = np.repeat(arrow_colors, 2, axis=0)
+custom_colors = {
+    39: (0, 1, 1, 1), # Y  = Cyan
+    42: (0, 0, 1, 1), # Mo = Blue
+    53: (1, 0, 1, 1), # I  = Purple
+    54: (1, 1, 0, 1), # Xe = Yellow
+    92: (1, 0, 0, 1)  # U  = Red
+}
+line_colors = [custom_colors.get(z, (0.5, 0.5, 0.5, 1)) for z in Z]
+line_colors_repeated = np.repeat(line_colors, 2, axis=0)
 
 arrow = scene.visuals.Arrow(
-    v1,
+    pos=v1,
+    color=line_colors_repeated,
+    connect='segments',
     arrows=v2,
     arrow_size=3,
-    connect='segments',
-    color=arrow_colors_repeated,
     parent=view.scene
 )
 
 sphere = scene.visuals.Sphere(
     radius=40,
     method='latitude',
-    color=(0.5, 0.5, 0.8, 0.2),
+    color=(0.5, 0.5, 0.8, 0.3),
     parent=view.scene
 )
 
