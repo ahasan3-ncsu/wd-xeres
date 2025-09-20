@@ -56,12 +56,13 @@ def calc(fileName, toPlot):
                 color='crimson', ls='--', label=r'$R_b + \delta$')
 
         plt.xscale('log')
+        plt.yscale('log')
 
         plt.xlabel('Xe recoil energy (eV)')
         plt.ylabel(r'Distance from the bubble center ($\AA$)')
 
         plt.legend(loc='lower right')
-        plt.savefig('xe_dist.pdf')
+        plt.savefig(''.join(fileName.split('/')[:-1]) + '/xe_dist.pdf')
 
 def main():
     args = sys.argv[1:]
