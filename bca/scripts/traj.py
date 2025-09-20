@@ -1,9 +1,12 @@
 import sys
 import numpy as np
 from vispy import app, scene
-from colors import custom_colors
+from vispy.visuals.transforms import STTransform
 
-def create_vis(row_file, xyz_file):
+from colors import custom_colors
+from toml_util import get_sphere_prop, get_cube_prop
+
+def create_vis(row_file, xyz_file, toml_file):
     jar = np.loadtxt(xyz_file, delimiter=',')
 
     Z = jar[:, 1]
@@ -29,18 +32,21 @@ def create_vis(row_file, xyz_file):
         parent=view.scene
     )
 
+    sphere_radius = get_sphere_prop(toml_file)
     sphere = scene.visuals.Sphere(
-        radius=40,
+        radius=sphere_radius,
         method='latitude',
-        color=(0.5, 0.5, 0.8, 0.2),
+        color=(0.5, 0.5, 0.8, 0.3),
         parent=view.scene
     )
 
+    cube_dim, cube_trf = get_cube_prop(toml_file)
     cube = scene.visuals.Box(
-        160, 160, 160,
+        *cube_dim,
         color=(0.8, 0.8, 0.8, 0.2),
         parent=view.scene
     )
+    cube.transform = STTransform(translate=cube_trf)
 
     axis = scene.visuals.XYZAxis(parent=view.scene)
 
@@ -48,8 +54,9 @@ def main():
     file_root = sys.argv[1]
     traj_row_file = file_root + '_trajectory_data.output'
     traj_xyz_file = file_root + '_trajectories.output'
+    toml_file = file_root + '.toml'
 
-    create_vis(traj_row_file, traj_xyz_file)
+    create_vis(traj_row_file, traj_xyz_file, toml_file)
     app.run()
 
 if __name__ == '__main__':
