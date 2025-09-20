@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 from vispy import app, scene
+from colors import custom_colors
 
 # feed a "deposited.output" file
 fileName = sys.argv[1]
@@ -13,13 +14,6 @@ canvas = scene.SceneCanvas(keys='interactive', show=True)
 view = canvas.central_widget.add_view()
 view.camera = 'turntable'
 
-custom_colors = {
-    39: (0.0, 1.0, 1.0, 1), # Y  = Cyan
-    42: (0.0, 0.0, 1.0, 1), # Mo = Blue
-    53: (0.0, 1.0, 0.0, 1), # I  = Green
-    54: (1.0, 1.0, 0.0, 1), # Xe = Yellow
-    92: (1.0, 0.0, 0.0, 1)  # U  = Red
-}
 z_colors = [custom_colors.get(z, (0.5, 0.5, 0.5, 1)) for z in Z]
 
 scatter = scene.visuals.Markers()

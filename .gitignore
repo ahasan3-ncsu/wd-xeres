@@ -6,3 +6,4 @@ dump*
 
 iradinaGUI
 .ipynb_checkpoints
+__pycache__
