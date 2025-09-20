@@ -21,16 +21,17 @@ def create_vis(row_file, xyz_file):
     }
     z_colors = [custom_colors.get(z, (0.5, 0.5, 0.5, 1)) for z in Z]
 
-    # It'd be perfect if it could be fully transparent.
-    rows = np.loadtxt(row_file, dtype=int)
-    rc = np.cumsum(rows)
-    for i in rc:
-        z_colors[i-1] = (0, 0, 0, 0)
+    p_rows = np.loadtxt(row_file, dtype=int)
+    line_sw = np.full(len(pos)-1, True)
+    cum = 0
+    for r in p_rows[:-1]:
+        cum += r
+        line_sw[cum-1] = False
 
     lines = scene.visuals.Line(
         pos=pos,
         color=z_colors,
-        connect='strip',
+        connect=line_sw,
         parent=view.scene
     )
 
