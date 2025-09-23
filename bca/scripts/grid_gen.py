@@ -6,10 +6,10 @@ def make_grid(rows, cols):
     grid = [
         [
             {
-                'surf_area': 0.0,  # angstrom^2
+                'volume': 0.0,     # angstrom^3
                 'num_ions': 0,     # integer
                 'energies': [],    # eV
-                'angles': []       # radian (0 -> pi)
+                'angles': []       # radian (0 -> pi/2)
             }
             for _ in range(cols)
         ]
@@ -18,9 +18,8 @@ def make_grid(rows, cols):
 
     for i in range(rows):
         for j in range(cols):
-            rlo, rhi = max(0, j - 0.5), j + 0.5
-            # 1e6 is there to make it angstrom^2
-            grid[i][j]['surf_area'] = np.pi * (rhi**2 - rlo**2) * 1e6
+            # 1e9 is there to make it angstrom^3
+            grid[i][j]['volume'] = np.pi * ((j+1)**2 - j**2) * 1e9
 
     return grid
 
@@ -30,51 +29,70 @@ def extract_from_traj(row_file, xyz_file, grid):
 
     # load E, x, y, z
     with open(xyz_file) as f:
-        for k in p_rows:
+        for p in p_rows:
             jar = []
-            for i in range(k):
+            for i in range(p):
                 tmp = f.readline().split(',')
                 jar.append([float(tmp[i]) for i in range(2, 6)])
 
-            for j in range(1, len(jar)):
+            # skip the first trajectory line where veclen == 0
+            for j in range(2, len(jar)):
                 e, xi, yi, zi = jar[j-1]
                 _, xf, yf, zf = jar[j]
 
-                # corner case: sometimes position doesn't change
-                veclen = ((xf - xi)**2 + (yf - yi)**2 + (zf - zi)**2)**0.5
-                if veclen == 0:
-                    continue
+                dx = xf - xi
+                dydx = (yf - yi) / dx
+                dzdx = (zf - zi) / dx
 
-                # slopes
-                dydx = (yf - yi) / (xf - xi)
-                dzdx = (zf - zi) / (xf - xi)
+                # w : distance perpendicular to x
+                wi = (yi**2 + zi**2)**0.5
+                wf = (yf**2 + zf**2)**0.5
+                dwdx = (wf - wi) / dx
 
-                # direction cosine
-                alpha = (xf - xi) / veclen
+                ### horizontal entry
+                if xf > xi:
+                    grid_x_lo = np.ceil(xi / 1e3)
+                    grid_x_hi = np.floor(xf / 1e3)
+                elif xf < xi:
+                    grid_x_hi = np.floor(xi / 1e3)
+                    grid_x_lo = np.ceil(xf / 1e3)
 
-                if alpha > 0:
-                    ang = float(np.arccos(alpha))
+                # horizontal direction cosine
+                veclen = (dx**2 + (yf - yi)**2 + (zf - zi)**2)**0.5
+                alpha = dx / veclen
+                ang_x = float(np.arccos(abs(alpha)))
 
-                    grid_lo = np.ceil(xi / 1e3)
-                    # strict floor not needed; x == floor(x) is unlikely
-                    grid_hi = np.floor(xf / 1e3)
-                elif alpha < 0:
-                    ang = float(np.arccos(-alpha))
+                for grid_x in range(int(grid_x_lo), int(grid_x_hi) + 1):
+                    w = wi + (grid_x * 1e3 - xi) * dwdx
+                    grid_w = int(np.floor(w / 1e3))
 
-                    grid_hi = np.floor(xi / 1e3)
-                    # strict ceil not needed; x == ceil(x) is unlikely
-                    grid_lo = np.ceil(xf / 1e3)
+                    grid[grid_x][grid_w]['num_ions'] += 1
+                    grid[grid_x][grid_w]['energies'].append(e)
+                    grid[grid_x][grid_w]['angles'].append(ang_x)
 
-                for grid_x in range(int(grid_lo), int(grid_hi) + 1):
-                    y = yi + (grid_x * 1e3 - xi) * dydx
-                    z = zi + (grid_x * 1e3 - xi) * dzdx
+                ### vertical entry
+                if wf > wi:
+                    grid_w_lo = np.ceil(wi / 1e3)
+                    grid_w_hi = np.floor(wf / 1e3)
+                elif wf < wi:
+                    grid_w_hi = np.floor(wi / 1e3)
+                    grid_w_lo = np.ceil(wf / 1e3)
 
-                    r_yz = (y**2 + z**2)**0.5
-                    grid_off = int(np.round(r_yz / 1e3))
+                for grid_w in range(int(grid_w_lo), int(grid_w_hi) + 1):
+                    x = xi + (grid_w * 1e3 - wi) / dwdx
+                    grid_x = int(np.floor(x / 1e3))
 
-                    grid[grid_x][grid_off]['num_ions'] += 1
-                    grid[grid_x][grid_off]['energies'].append(e)
-                    grid[grid_x][grid_off]['angles'].append(ang)
+                    # unlike alpha, beta changes for each grid_w
+                    y = yi + (x - xi) * dydx
+                    z = zi + (x - xi) * dzdx
+                    normal = [0, y, z]
+                    vect = [1, dydx, dzdx]
+                    beta = np.dot(normal, vect) / np.linalg.norm(normal) / np.linalg.norm(vect)
+                    ang_w = float(np.pi / 2 - np.arccos(abs(beta)))
+
+                    grid[grid_x][grid_w]['num_ions'] += 1
+                    grid[grid_x][grid_w]['energies'].append(e)
+                    grid[grid_x][grid_w]['angles'].append(ang_w)
 
     return grid
 

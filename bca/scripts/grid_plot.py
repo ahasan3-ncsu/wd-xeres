@@ -2,7 +2,7 @@ import sys
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
-from grid_gen import print_grid
+# from grid_gen import print_grid
 
 def plot_grid(grid_file):
     with open(grid_file, 'rb') as f:
@@ -10,10 +10,13 @@ def plot_grid(grid_file):
 
     # print_grid(grid_data, 'num_ions')
 
-    ion_data = [[col['num_ions'] for col in row] for row in grid_data]
+    ion_data = [
+        [col['num_ions']/col['volume'] for col in row]
+        for row in grid_data
+    ]
     t_data = np.array(ion_data).T
 
-    plt.imshow(t_data, cmap='turbo', origin='lower')
+    plt.imshow(t_data, cmap='turbo', origin='lower', norm='log')
     plt.colorbar()
 
     plt.show()
