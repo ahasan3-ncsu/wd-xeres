@@ -13,7 +13,7 @@ def plot_grid(grid_file):
     ion_data = [[col['num_ions'] for col in row] for row in grid_data]
     t_data = np.array(ion_data).T
 
-    plt.imshow(t_data, cmap='viridis', origin='lower')
+    plt.imshow(t_data, cmap='turbo', origin='lower')
     plt.colorbar()
 
     plt.show()

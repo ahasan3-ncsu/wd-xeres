@@ -6,10 +6,10 @@ def make_grid(rows, cols):
     grid = [
         [
             {
-                'surf_area': 0.0,
-                'num_ions': 0,
-                'energies': [],
-                'angles': []
+                'surf_area': 0.0,  # angstrom^2
+                'num_ions': 0,     # integer
+                'energies': [],    # eV
+                'angles': []       # radian (0 -> pi)
             }
             for _ in range(cols)
         ]
@@ -19,7 +19,8 @@ def make_grid(rows, cols):
     for i in range(rows):
         for j in range(cols):
             rlo, rhi = max(0, j - 0.5), j + 0.5
-            grid[i][j]['surf_area'] = np.pi * (rhi**2 - rlo**2)
+            # 1e6 is there to make it angstrom^2
+            grid[i][j]['surf_area'] = np.pi * (rhi**2 - rlo**2) * 1e6
 
     return grid
 
@@ -39,43 +40,41 @@ def extract_from_traj(row_file, xyz_file, grid):
                 e, xi, yi, zi = jar[j-1]
                 _, xf, yf, zf = jar[j]
 
+                # corner case: sometimes position doesn't change
                 veclen = ((xf - xi)**2 + (yf - yi)**2 + (zf - zi)**2)**0.5
                 if veclen == 0:
                     continue
-                alpha = (xf - xi) / veclen
-                if alpha < 0: # need to fix this later
-                    print('Oops! Wrong direction.')
-                    break
-                ang = float(np.arccos(alpha))
 
+                # slopes
                 dydx = (yf - yi) / (xf - xi)
                 dzdx = (zf - zi) / (xf - xi)
 
-                gxi = np.ceil(xi / 1e3)
-                gxf = np.floor(xf / 1e3)
+                # direction cosine
+                alpha = (xf - xi) / veclen
 
-                # print(xi, gxi, gxf, xf)
-                # if gxi > gxf:
-                #     break
-                #     print(gxi, gxf)
-                #     print('we are not cooked')
+                if alpha > 0:
+                    ang = float(np.arccos(alpha))
 
-                # floor(x) = x is not considered; fix it later
-                for gx in range(int(gxi), int(gxf) + 1):
-                    gy = yi + (gx * 1e3 - xi) * dydx
-                    gz = zi + (gx * 1e3 - xi) * dzdx
+                    grid_lo = np.ceil(xi / 1e3)
+                    # strict floor not needed; x == floor(x) is unlikely
+                    grid_hi = np.floor(xf / 1e3)
+                elif alpha < 0:
+                    ang = float(np.arccos(-alpha))
 
-                    dd = (gy**2 + gz**2)**0.5
-                    off = int(np.round(dd / 1e3))
+                    grid_hi = np.floor(xi / 1e3)
+                    # strict ceil not needed; x == ceil(x) is unlikely
+                    grid_lo = np.ceil(xf / 1e3)
 
-                    # print(xi, xf)
-                    # print(yi, yf, zi, zf)
-                    # print(gy, gz)
-                    # print(off)
+                for grid_x in range(int(grid_lo), int(grid_hi) + 1):
+                    y = yi + (grid_x * 1e3 - xi) * dydx
+                    z = zi + (grid_x * 1e3 - xi) * dzdx
 
-                    grid[gx][off]['num_ions'] += 1
-                    grid[gx][off]['energies'].append(e)
-                    grid[gx][off]['angles'].append(ang)
+                    r_yz = (y**2 + z**2)**0.5
+                    grid_off = int(np.round(r_yz / 1e3))
+
+                    grid[grid_x][grid_off]['num_ions'] += 1
+                    grid[grid_x][grid_off]['energies'].append(e)
+                    grid[grid_x][grid_off]['angles'].append(ang)
 
     return grid
 
@@ -91,7 +90,7 @@ def main():
     traj_xyz_file = file_root + '_trajectories.output'
     save_file = file_root + '_grid_data.output'
 
-    empty_grid = make_grid(90, 30)
+    empty_grid = make_grid(90, 40)
     filled_grid = extract_from_traj(traj_row_file, traj_xyz_file, empty_grid)
     print_grid(filled_grid, 'num_ions')
 
