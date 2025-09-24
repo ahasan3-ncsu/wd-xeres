@@ -88,7 +88,7 @@ def extract_from_traj(row_file, xyz_file, grid):
                     normal = [0, y, z]
                     vect = [1, dydx, dzdx]
                     beta = np.dot(normal, vect) / np.linalg.norm(normal) / np.linalg.norm(vect)
-                    ang_w = float(np.pi / 2 - np.arccos(abs(beta)))
+                    ang_w = float(np.arccos(abs(beta)))
 
                     grid[grid_x][grid_w]['num_ions'] += 1
                     grid[grid_x][grid_w]['energies'].append(e)
