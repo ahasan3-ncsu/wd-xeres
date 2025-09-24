@@ -27,18 +27,28 @@ def extract_from_traj(row_file, xyz_file, grid):
     # number of rows for ions
     p_rows = np.loadtxt(row_file, dtype=int)
 
+    # needed for out-of-bounds ions
+    nrows = len(grid)
+    ncols = len(grid[0])
+
     # load E, x, y, z
     with open(xyz_file) as f:
+        counter = 1
+
         for p in p_rows:
-            jar = []
-            for i in range(p):
-                tmp = f.readline().split(',')
-                jar.append([float(tmp[i]) for i in range(2, 6)])
+            # in lieu of a loading screen
+            if counter % 10 == 0:
+                print(counter)
 
             # skip the first trajectory line where veclen == 0
-            for j in range(2, len(jar)):
-                e, xi, yi, zi = jar[j-1]
-                _, xf, yf, zf = jar[j]
+            _ = f.readline()
+            curr = f.readline().split(',')
+
+            for j in range(2, p):
+                nxt = f.readline().split(',')
+
+                e, xi, yi, zi = [float(curr[i]) for i in range(2, 6)]
+                _, xf, yf, zf = [float(nxt[i]) for i in range(2, 6)]
 
                 dx = xf - xi
                 dydx = (yf - yi) / dx
@@ -66,9 +76,10 @@ def extract_from_traj(row_file, xyz_file, grid):
                     w = wi + (grid_x * 1e3 - xi) * dwdx
                     grid_w = int(np.floor(w / 1e3))
 
-                    grid[grid_x][grid_w]['num_ions'] += 1
-                    grid[grid_x][grid_w]['energies'].append(e)
-                    grid[grid_x][grid_w]['angles'].append(ang_x)
+                    if grid_x < nrows and grid_w < ncols:
+                        grid[grid_x][grid_w]['num_ions'] += 1
+                        grid[grid_x][grid_w]['energies'].append(e)
+                        grid[grid_x][grid_w]['angles'].append(ang_x)
 
                 ### vertical entry
                 if wf > wi:
@@ -90,9 +101,14 @@ def extract_from_traj(row_file, xyz_file, grid):
                     beta = np.dot(normal, vect) / np.linalg.norm(normal) / np.linalg.norm(vect)
                     ang_w = float(np.arccos(abs(beta)))
 
-                    grid[grid_x][grid_w]['num_ions'] += 1
-                    grid[grid_x][grid_w]['energies'].append(e)
-                    grid[grid_x][grid_w]['angles'].append(ang_w)
+                    if grid_x < nrows and grid_w < ncols:
+                        grid[grid_x][grid_w]['num_ions'] += 1
+                        grid[grid_x][grid_w]['energies'].append(e)
+                        grid[grid_x][grid_w]['angles'].append(ang_w)
+
+                curr = nxt
+
+            counter += 1
 
     return grid
 
@@ -108,7 +124,7 @@ def main():
     traj_xyz_file = file_root + '_trajectories.output'
     save_file = file_root + '_grid_data.output'
 
-    empty_grid = make_grid(90, 40)
+    empty_grid = make_grid(90, 50)
     filled_grid = extract_from_traj(traj_row_file, traj_xyz_file, empty_grid)
     print_grid(filled_grid, 'num_ions')
 
