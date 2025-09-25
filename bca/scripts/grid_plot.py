@@ -32,12 +32,16 @@ def plot_grid(grid_file, prop):
         for row in grid_data
     ]
     t_data = np.array(ion_data).T
+    pnorm = 'linear'
 
-    slognorm = SymLogNorm(linthresh=1e-11)
+    if prop == 'p':
+        t_data = t_data / grid_data[0][0]['num_ions']
+        pnorm = SymLogNorm(linthresh=1e-14)
+
     plt.imshow(t_data,
-               cmap='turbo',
+               cmap='nipy_spectral',
                origin='lower',
-               norm=(slognorm if prop=='p' else 'linear'))
+               norm=pnorm)
     plt.colorbar()
 
     plt.show()
