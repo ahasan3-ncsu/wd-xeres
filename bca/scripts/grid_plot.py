@@ -2,15 +2,22 @@ import sys
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import SymLogNorm
 
 def pfn(col, prop):
     match prop:
         case 'n':
             return col['num_ions']
         case 'e':
-            return np.mean(col['energies'])
+            if len(col['energies']):
+                return np.mean(col['energies'])
+            else:
+                return 0
         case 'a':
-            return np.mean(col['angles'])
+            if len(col['angles']):
+                return np.mean(col['angles'])
+            else:
+                return 0
         case 'p':
             return col['num_ions'] / col['volume']
         case _:
@@ -26,10 +33,11 @@ def plot_grid(grid_file, prop):
     ]
     t_data = np.array(ion_data).T
 
+    slognorm = SymLogNorm(linthresh=1e-11)
     plt.imshow(t_data,
                cmap='turbo',
                origin='lower',
-               norm=('log' if prop=='p' else 'linear'))
+               norm=(slognorm if prop=='p' else 'linear'))
     plt.colorbar()
 
     plt.show()
