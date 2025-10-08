@@ -122,7 +122,7 @@ def main():
     file_root = sys.argv[1]
     traj_row_file = file_root + '_trajectory_data.output'
     traj_xyz_file = file_root + '_trajectories.output'
-    save_file = file_root + '_grid_data.output'
+    save_file = file_root + '_volume_grid.output'
 
     empty_grid = make_grid(90, 50)
     filled_grid = extract_from_traj(traj_row_file, traj_xyz_file, empty_grid)

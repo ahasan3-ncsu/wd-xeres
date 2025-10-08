@@ -19,7 +19,7 @@ def pfn(col, prop):
             else:
                 return 0
         case 'p':
-            return col['num_ions'] / col['volume']
+            return col['num_ions'] / col['surf_area']
         case _:
             raise ValueError('Weird property! Use n, e, a, or p.')
 
@@ -48,7 +48,7 @@ def plot_grid(grid_file, prop):
 
 def main():
     file_root = sys.argv[1]
-    data_file = file_root + '_grid_data.output'
+    data_file = file_root + '_surface_grid.output'
     grid_prop = sys.argv[2]
 
     plot_grid(data_file, grid_prop)
