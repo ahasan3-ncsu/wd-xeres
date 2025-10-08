@@ -23,7 +23,7 @@ def make_grid(rows, cols):
 
     return grid
 
-def extract_from_traj(row_file, xyz_file, grid):
+def extract_from_traj(row_file, xyz_file, grid, grid_sz):
     # number of rows for ions
     p_rows = np.loadtxt(row_file, dtype=int)
 
@@ -57,11 +57,11 @@ def extract_from_traj(row_file, xyz_file, grid):
 
                 ### horizontal entry
                 if xf > xi:
-                    grid_x_lo = np.ceil(xi / 1e3)
-                    grid_x_hi = np.floor(xf / 1e3)
+                    grid_x_lo = np.ceil(xi / grid_sz)
+                    grid_x_hi = np.floor(xf / grid_sz)
                 elif xf < xi:
-                    grid_x_hi = np.floor(xi / 1e3)
-                    grid_x_lo = np.ceil(xf / 1e3)
+                    grid_x_hi = np.floor(xi / grid_sz)
+                    grid_x_lo = np.ceil(xf / grid_sz)
 
                 # horizontal direction cosine
                 veclen = ((xf - xi)**2 + (yf - yi)**2 + (zf - zi)**2)**0.5
@@ -69,8 +69,8 @@ def extract_from_traj(row_file, xyz_file, grid):
                 ang_x = float(np.arccos(abs(alpha)))
 
                 for grid_x in range(int(grid_x_lo), int(grid_x_hi) + 1):
-                    w = wi + (grid_x * 1e3 - xi) * dwdx
-                    grid_w = int(np.floor(w / 1e3))
+                    w = wi + (grid_x * grid_sz - xi) * dwdx
+                    grid_w = int(np.floor(w / grid_sz))
 
                     if grid_x < nrows and grid_w < ncols:
                         grid[grid_x][grid_w]['num_ions'] += 1
@@ -96,7 +96,7 @@ def main():
     save_file = file_root + '_surface_grid.output'
 
     empty_grid = make_grid(90, 50)
-    filled_grid = extract_from_traj(traj_row_file, traj_xyz_file, empty_grid)
+    filled_grid = extract_from_traj(traj_row_file, traj_xyz_file, empty_grid, 1e3)
     print_grid(filled_grid, 'num_ions')
 
     with open(save_file, 'wb') as f:

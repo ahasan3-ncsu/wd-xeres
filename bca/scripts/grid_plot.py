@@ -36,7 +36,7 @@ def plot_grid(grid_file, prop):
 
     if prop == 'p':
         t_data = t_data / grid_data[0][0]['num_ions']
-        pnorm = SymLogNorm(linthresh=1e-14)
+        pnorm = SymLogNorm(linthresh=1e-11)
 
     plt.imshow(t_data,
                cmap='nipy_spectral',
