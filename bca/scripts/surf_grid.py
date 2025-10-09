@@ -2,6 +2,9 @@ import sys
 import pickle
 import numpy as np
 
+from multiprocessing import cpu_count
+from concurrent.futures import ProcessPoolExecutor, wait, FIRST_COMPLETED
+
 def make_grid(rows, cols):
     grid = [
         [
@@ -94,21 +97,35 @@ def extract_from_traj(row_file, xyz_file, grid, grid_sz):
     p_rows = np.loadtxt(row_file, dtype=int)
     gen = chunk_stream(row_file, xyz_file)
 
+    nrows = len(grid)
+    ncols = len(grid[0])
+
     increments = []
-    counter = 1
 
-    for p in p_rows:
-        # in lieu of a loading screen
-        if counter % 10 == 0:
-            print(counter)
+    workers = max(1, cpu_count() - 2)
+    with ProcessPoolExecutor(max_workers=workers) as executor:
+        futures = set()
 
-        jar = next(gen)
-        nrows = len(grid)
-        ncols = len(grid[0])
+        counter = 1
+        for _ in p_rows:
+            # in lieu of a loading screen
+            if counter % 10 == 0:
+                print(counter)
 
-        increments.append(process_chunk(jar, nrows, ncols, grid_sz))
+            jar = next(gen)
 
-        counter += 1
+            future = executor.submit(process_chunk, jar, nrows, ncols, grid_sz)
+            futures.add(future)
+
+            if len(futures) >= workers:
+                done, futures = wait(futures, return_when=FIRST_COMPLETED)
+                for d in done:
+                    increments.append(d.result())
+
+            counter += 1
+
+        for future in futures:
+            increments.append(future.result())
 
     return aggregate(grid, increments)
 
