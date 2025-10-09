@@ -5,7 +5,7 @@ import numpy as np
 from multiprocessing import cpu_count
 from concurrent.futures import ProcessPoolExecutor, wait, FIRST_COMPLETED
 
-def make_grid(rows, cols):
+def make_grid(rows, cols, sz):
     grid = [
         [
             {
@@ -21,8 +21,8 @@ def make_grid(rows, cols):
 
     for i in range(rows):
         for j in range(cols):
-            # 1e6 is there to make it angstrom^2
-            grid[i][j]['surf_area'] = np.pi * ((j+1)**2 - j**2) * 1e6
+            # sz^2 is there to make it angstrom^2
+            grid[i][j]['surf_area'] = np.pi * ((j+1)**2 - j**2) * sz**2
 
     return grid
 
@@ -110,7 +110,7 @@ def extract_from_traj(row_file, xyz_file, grid, grid_sz):
         for _ in p_rows:
             # in lieu of a loading screen
             if counter % 10 == 0:
-                print(counter)
+                print(f'Submitted {counter} chunks')
 
             jar = next(gen)
 
@@ -141,9 +141,16 @@ def main():
     traj_xyz_file = file_root + '_trajectories.output'
     save_file = file_root + '_surface_grid.output'
 
-    empty_grid = make_grid(90, 50)
-    filled_grid = extract_from_traj(traj_row_file, traj_xyz_file, empty_grid, 1e3)
-    print_grid(filled_grid, 'num_ions')
+    grid_size = int(5e2) # 50 nm should be enough
+    num_rows = int(9e4 / grid_size) # 9 micron in width
+    num_cols = int(5e4 / grid_size) # 5 micron in height
+    print(f'{num_rows}x{num_cols} grids of size {grid_size} angstrom')
+
+    empty_grid = make_grid(num_rows, num_cols, grid_size)
+    filled_grid = extract_from_traj(
+        traj_row_file, traj_xyz_file, empty_grid, grid_size
+    )
+    # print_grid(filled_grid, 'num_ions')
 
     with open(save_file, 'wb') as f:
         pickle.dump(filled_grid, f)
