@@ -23,65 +23,94 @@ def make_grid(rows, cols):
 
     return grid
 
+def chunk_stream(row_file, xyz_file):
+    p_rows = np.loadtxt(row_file, dtype=int)
+
+    with open(xyz_file) as f:
+        for p in p_rows:
+            jar = []
+            for _ in range(p):
+                jar.append(f.readline())
+
+            yield jar
+
+def process_chunk(data, nrows, ncols, grid_sz):
+    foo = {}
+
+    # skip the first trajectory line where veclen == 0
+    curr = data[1].split(',')
+
+    for j in range(2, len(data)):
+        nxt = data[j].split(',')
+
+        e, xi, yi, zi = [float(curr[i]) for i in range(2, 6)]
+        _, xf, yf, zf = [float(nxt[i]) for i in range(2, 6)]
+
+        # w : distance perpendicular to x
+        wi = (yi**2 + zi**2)**0.5
+        wf = (yf**2 + zf**2)**0.5
+        dwdx = (wf - wi) / (xf - xi)
+
+        ### horizontal entry
+        if xf > xi:
+            grid_x_lo = np.ceil(xi / grid_sz)
+            grid_x_hi = np.floor(xf / grid_sz)
+        elif xf < xi:
+            grid_x_hi = np.floor(xi / grid_sz)
+            grid_x_lo = np.ceil(xf / grid_sz)
+
+        # horizontal direction cosine
+        veclen = ((xf - xi)**2 + (yf - yi)**2 + (zf - zi)**2)**0.5
+        alpha = (xf - xi) / veclen
+        ang_x = float(np.arccos(abs(alpha)))
+
+        for grid_x in range(int(grid_x_lo), int(grid_x_hi) + 1):
+            w = wi + (grid_x * grid_sz - xi) * dwdx
+            grid_w = int(np.floor(w / grid_sz))
+
+            if grid_x < nrows and grid_w < ncols:
+                if (grid_x, grid_w) in foo:
+                    foo[(grid_x, grid_w)][0] += 1
+                    foo[(grid_x, grid_w)][1].append(e)
+                    foo[(grid_x, grid_w)][2].append(ang_x)
+                else:
+                    foo[(grid_x, grid_w)] = [1, [e], [ang_x]]
+
+        curr = nxt
+
+    return foo
+
+def aggregate(grid, increments):
+    for incr in increments:
+        for k, v in incr.items():
+            grid[k[0]][k[1]]['num_ions'] += v[0]
+            grid[k[0]][k[1]]['energies'].extend(v[1])
+            grid[k[0]][k[1]]['angles'].extend(v[2])
+
+    return grid
+
 def extract_from_traj(row_file, xyz_file, grid, grid_sz):
     # number of rows for ions
     p_rows = np.loadtxt(row_file, dtype=int)
+    gen = chunk_stream(row_file, xyz_file)
 
-    # needed for out-of-bounds ions
-    nrows = len(grid)
-    ncols = len(grid[0])
+    increments = []
+    counter = 1
 
-    # load E, x, y, z
-    with open(xyz_file) as f:
-        counter = 1
+    for p in p_rows:
+        # in lieu of a loading screen
+        if counter % 10 == 0:
+            print(counter)
 
-        for p in p_rows:
-            # in lieu of a loading screen
-            if counter % 10 == 0:
-                print(counter)
+        jar = next(gen)
+        nrows = len(grid)
+        ncols = len(grid[0])
 
-            # skip the first trajectory line where veclen == 0
-            _ = f.readline()
-            curr = f.readline().split(',')
+        increments.append(process_chunk(jar, nrows, ncols, grid_sz))
 
-            for j in range(2, p):
-                nxt = f.readline().split(',')
+        counter += 1
 
-                e, xi, yi, zi = [float(curr[i]) for i in range(2, 6)]
-                _, xf, yf, zf = [float(nxt[i]) for i in range(2, 6)]
-
-                # w : distance perpendicular to x
-                wi = (yi**2 + zi**2)**0.5
-                wf = (yf**2 + zf**2)**0.5
-                dwdx = (wf - wi) / (xf - xi)
-
-                ### horizontal entry
-                if xf > xi:
-                    grid_x_lo = np.ceil(xi / grid_sz)
-                    grid_x_hi = np.floor(xf / grid_sz)
-                elif xf < xi:
-                    grid_x_hi = np.floor(xi / grid_sz)
-                    grid_x_lo = np.ceil(xf / grid_sz)
-
-                # horizontal direction cosine
-                veclen = ((xf - xi)**2 + (yf - yi)**2 + (zf - zi)**2)**0.5
-                alpha = (xf - xi) / veclen
-                ang_x = float(np.arccos(abs(alpha)))
-
-                for grid_x in range(int(grid_x_lo), int(grid_x_hi) + 1):
-                    w = wi + (grid_x * grid_sz - xi) * dwdx
-                    grid_w = int(np.floor(w / grid_sz))
-
-                    if grid_x < nrows and grid_w < ncols:
-                        grid[grid_x][grid_w]['num_ions'] += 1
-                        grid[grid_x][grid_w]['energies'].append(e)
-                        grid[grid_x][grid_w]['angles'].append(ang_x)
-
-                curr = nxt
-
-            counter += 1
-
-    return grid
+    return aggregate(grid, increments)
 
 def print_grid(grid, prop):
     for row in grid:
