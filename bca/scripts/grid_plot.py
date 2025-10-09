@@ -9,17 +9,9 @@ def pfn(col, prop):
         case 'n':
             return col['num_ions']
         case 'e':
-            if len(col['energies']):
-                return np.mean(col['energies'])
-            else:
-                return 0
+            return np.mean(col['energies']) if col['energies'] else 0
         case 'a':
-            if len(col['angles']):
-                return np.mean(col['angles'])
-            else:
-                return 0
-        case 'p':
-            return col['num_ions'] / col['surf_area']
+            return np.mean(col['angles']) if col['angles'] else 0
         case _:
             raise ValueError('Weird property! Use n, e, a, or p.')
 
@@ -27,16 +19,32 @@ def plot_grid(grid_file, prop):
     with open(grid_file, 'rb') as f:
         grid_data = pickle.load(f)
 
-    ion_data = [
-        [pfn(col, prop) for col in row]
-        for row in grid_data
-    ]
-    t_data = np.array(ion_data).T
-    pnorm = 'linear'
-
     if prop == 'p':
-        t_data = t_data / grid_data[0][0]['num_ions']
+        grid_size = int(5e2) # 50 nm should be enough
+        num_rows = int(9e4 / grid_size) # 9 micron in width
+        num_cols = int(5e4 / grid_size) # 5 micron in height
+
+        ion_data = [
+            [0 for col in row]
+            for row in grid_data
+        ]
+
+        total_ions = grid_data[0][0]['num_ions']
+        for i in range(num_rows):
+            for j in range(num_cols):
+                surf_area = np.pi * ((j+1)**2 - j**2) * grid_size**2
+                ion_data[i][j] = grid_data[i][j]['num_ions'] / total_ions / surf_area
+
+        t_data = np.array(ion_data).T
         pnorm = SymLogNorm(linthresh=1e-11)
+    else:
+        ion_data = [
+            [pfn(col, prop) for col in row]
+            for row in grid_data
+        ]
+
+        t_data = np.array(ion_data).T
+        pnorm = 'linear'
 
     # option 1: imshow
     plt.imshow(t_data,

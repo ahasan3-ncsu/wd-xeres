@@ -5,11 +5,10 @@ import numpy as np
 from multiprocessing import cpu_count
 from concurrent.futures import ProcessPoolExecutor, wait, FIRST_COMPLETED
 
-def make_grid(rows, cols, sz):
+def make_grid(rows, cols):
     grid = [
         [
             {
-                'surf_area': 0.0,  # angstrom^2
                 'num_ions': 0,     # integer
                 'energies': [],    # eV
                 'angles': []       # radian (0 -> pi/2)
@@ -18,11 +17,6 @@ def make_grid(rows, cols, sz):
         ]
         for _ in range(rows)
     ]
-
-    for i in range(rows):
-        for j in range(cols):
-            # sz^2 is there to make it angstrom^2
-            grid[i][j]['surf_area'] = np.pi * ((j+1)**2 - j**2) * sz**2
 
     return grid
 
@@ -146,7 +140,7 @@ def main():
     num_cols = int(5e4 / grid_size) # 5 micron in height
     print(f'{num_rows}x{num_cols} grids of size {grid_size} angstrom')
 
-    empty_grid = make_grid(num_rows, num_cols, grid_size)
+    empty_grid = make_grid(num_rows, num_cols)
     filled_grid = extract_from_traj(
         traj_row_file, traj_xyz_file, empty_grid, grid_size
     )
