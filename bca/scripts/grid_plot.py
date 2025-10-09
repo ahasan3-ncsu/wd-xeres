@@ -39,18 +39,18 @@ def plot_grid(grid_file, prop):
         pnorm = SymLogNorm(linthresh=1e-11)
 
     # option 1: imshow
-    # plt.imshow(t_data,
-    #            cmap='nipy_spectral',
-    #            origin='lower',
-    #            norm=pnorm)
+    plt.imshow(t_data,
+               cmap='nipy_spectral',
+               origin='lower',
+               norm=pnorm)
 
     # option 2: pcolormesh
-    x_edges = np.linspace(0, 9, 181)
-    w_edges = np.linspace(0, 5, 101)
-    X, W = np.meshgrid(x_edges, w_edges)
-    plt.pcolormesh(X, W, t_data,
-                   cmap='nipy_spectral',
-                   norm=pnorm)
+    # x_edges = np.linspace(0, 9, 181)
+    # w_edges = np.linspace(0, 5, 101)
+    # X, W = np.meshgrid(x_edges, w_edges)
+    # plt.pcolormesh(X, W, t_data,
+    #                cmap='nipy_spectral',
+    #                norm=pnorm)
 
     plt.colorbar()
     plt.show()
