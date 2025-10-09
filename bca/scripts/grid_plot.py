@@ -38,12 +38,21 @@ def plot_grid(grid_file, prop):
         t_data = t_data / grid_data[0][0]['num_ions']
         pnorm = SymLogNorm(linthresh=1e-11)
 
-    plt.imshow(t_data,
-               cmap='nipy_spectral',
-               origin='lower',
-               norm=pnorm)
-    plt.colorbar()
+    # option 1: imshow
+    # plt.imshow(t_data,
+    #            cmap='nipy_spectral',
+    #            origin='lower',
+    #            norm=pnorm)
 
+    # option 2: pcolormesh
+    x_edges = np.linspace(0, 9, 181)
+    w_edges = np.linspace(0, 5, 101)
+    X, W = np.meshgrid(x_edges, w_edges)
+    plt.pcolormesh(X, W, t_data,
+                   cmap='nipy_spectral',
+                   norm=pnorm)
+
+    plt.colorbar()
     plt.show()
 
 def main():
