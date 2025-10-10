@@ -84,6 +84,7 @@ def main():
     dir_gen = get_sim_dir()
 
     poi = [(60, 0), (100, 0), (140, 0), (90, 10), (130, 10), (120, 20)]
+    # poi = [(40, 0), (70, 0), (100, 0), (60, 10), (90, 10), (80, 20)]
     diff = 1.0
 
     while diff > 1e-3:
@@ -100,6 +101,7 @@ def main():
         old_grid = copy.deepcopy(new_grid)
 
     with open('Y_surface_grid.output', 'wb') as f:
+    # with open('I_surface_grid.output', 'wb') as f:
         pickle.dump(new_grid, f)
 
 if __name__ == '__main__':
