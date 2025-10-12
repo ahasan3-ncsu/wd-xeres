@@ -74,7 +74,7 @@ def calc(disp_file, toml_file, to_plot):
         plt.ylabel(r'Distance from bubble center ($\AA$)')
 
         plt.legend(loc='lower right')
-        plt.savefig('/'.join(disp_file.split('/')[:-1]) + '/xe_res.pdf')
+        plt.savefig('/'.join(disp_file.split('/')[:-1] + ['xe_res.pdf']))
 
 def main():
     file_root = sys.argv[1]

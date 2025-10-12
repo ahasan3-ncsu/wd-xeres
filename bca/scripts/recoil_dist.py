@@ -4,7 +4,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
-def calc(disp_file, to_plot):
+def create_vis(disp_file, save_ext):
     E = [[], [], []]
     D = [[], [], []]
 
@@ -28,29 +28,28 @@ def calc(disp_file, to_plot):
             E[i].append(energ)
             D[i].append(sum(dr2)**0.5)
 
-    if int(to_plot):
-        plt.scatter(E[0], D[0],
-                    marker='s', s=5, color='red', label='U')
-        plt.scatter(E[1], D[1],
-                    marker='o', s=5, color='blue', label='Mo')
-        plt.scatter(E[2], D[2],
-                    marker='D', s=5, color='yellow', label='Xe')
+    plt.scatter(E[0], D[0],
+                marker='s', s=5, color='red', label='U')
+    plt.scatter(E[1], D[1],
+                marker='o', s=5, color='blue', label='Mo')
+    plt.scatter(E[2], D[2],
+                marker='D', s=5, color='yellow', label='Xe')
 
-        plt.xscale('log')
-        plt.yscale('log')
+    plt.xscale('log')
+    plt.yscale('log')
 
-        plt.xlabel('Recoil energy (eV)')
-        plt.ylabel(r'Displacement ($\AA$)')
+    plt.xlabel('Recoil energy (eV)')
+    plt.ylabel(r'Displacement ($\AA$)')
 
-        plt.legend(loc='lower right')
-        plt.savefig('/'.join(disp_file.split('/')[:-1]) + '/umoxe_dr.pdf')
+    plt.legend(loc='lower right')
+    plt.savefig('/'.join(disp_file.split('/')[:-1] + [f'recoil_dr.{save_ext}']))
 
 def main():
     file_root = sys.argv[1]
     disp_file = file_root + '_displacements.output'
-    to_plot = sys.argv[2]
+    save_ext = sys.argv[2]
 
-    calc(disp_file, to_plot)
+    create_vis(disp_file, save_ext)
 
 if __name__ == '__main__':
     main()

@@ -1,21 +1,30 @@
+import sys
 import numpy as np
 
-jar = np.loadtxt('umo_0D_energy_loss.output', delimiter=',')
+def calc(eloss_file):
+    jar = np.loadtxt(eloss_file, delimiter=',')
 
-E_nuke = jar[:, 2]
-E_elec = jar[:, 3]
+    E_nuke = jar[:, 2]
+    E_elec = jar[:, 3]
 
-nuke = E_nuke.sum()
-elec = E_elec.sum()
+    del jar
 
-print('Nuke: ', nuke)
-print('Elec: ', elec)
+    nuke = E_nuke.sum()
+    elec = E_elec.sum()
 
-print('Ratio: ', nuke / elec)
-print('Total: ', nuke + elec)
+    print('Nuke: ', nuke)
+    print('Elec: ', elec)
 
-# Outputs:
-# Nuke:  488381050.6223347
-# Elec:  9641618908.997154
-# Ratio:  0.050653428146449346
-# Total:  10129999959.61949
+    print('Total: ', nuke + elec)
+    print('Nuke ratio: ', nuke / (nuke + elec))
+    print('Elec ratio: ', elec / (nuke + elec))
+
+def main():
+    file_root = sys.argv[1]
+    eloss_file = file_root + '_energy_loss.output'
+    print(eloss_file)
+
+    calc(eloss_file)
+
+if __name__ == '__main__':
+    main()

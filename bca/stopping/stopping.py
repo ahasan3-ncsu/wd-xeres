@@ -1,52 +1,78 @@
+import sys
+import tomllib
 import numpy as np
 import matplotlib.pyplot as plt
 
-jar = np.loadtxt('umo_0D_energy_loss.output', delimiter=',')
+def create_vis(eloss_file, toml_file, which_ion):
+    jar = np.loadtxt(eloss_file, delimiter=',')
 
-x = jar[:, 4]
-E_nuke = jar[:, 2]
-E_elec = jar[:, 3]
+    x = jar[:, 4]
+    E_nuke = jar[:, 2]
+    E_elec = jar[:, 3]
 
-del jar
+    del jar
 
-bin_width = 5000
-x_min, x_max = x.min(), x.max()
+    bin_width = 5000
+    x_min, x_max = x.min(), x.max()
 
-bins = np.arange(x_min, x_max + bin_width, bin_width)
-bin_centers = (bins[:-1] + bins[1:]) / 2
+    bins = np.arange(x_min, x_max + bin_width, bin_width)
+    bin_centers = (bins[:-1] + bins[1:]) / 2
 
-x_bin = np.digitize(x, bins)
+    nuke_loss_per_bin = np.zeros(len(bin_centers))
+    elec_loss_per_bin = np.zeros(len(bin_centers))
 
-nuke_loss_per_bin = np.zeros(len(bins) - 1)
-elec_loss_per_bin = np.zeros(len(bins) - 1)
+    x_bin_ind = np.digitize(x, bins)
+    np.add.at(nuke_loss_per_bin, x_bin_ind - 1, E_nuke)
+    np.add.at(elec_loss_per_bin, x_bin_ind - 1, E_elec)
 
-np.add.at(nuke_loss_per_bin, x_bin - 1, E_nuke)
-np.add.at(elec_loss_per_bin, x_bin - 1, E_elec)
+    with open(toml_file, 'rb') as f:
+        foo = tomllib.load(f)
 
-plt.figure(figsize=(5, 4))
+    if which_ion == 'Y':
+        num_ions = foo['particle_parameters']['N'][0]
+    elif which_ion == 'I':
+        num_ions = foo['particle_parameters']['N'][1]
+    else:
+        raise ValueError('Wrong ion type!')
 
-plt.plot(
-    bin_centers / 1e4,
-    nuke_loss_per_bin / bin_width / 1e4,
-    label='Nuclear',
-    marker='o',
-    markersize=3,
-    color='red'
-)
-plt.plot(
-    bin_centers / 1e4,
-    elec_loss_per_bin / bin_width / 1e4,
-    label='Electronic',
-    marker='^',
-    markersize=3,
-    ls='--',
-    color='blue'
-)
+    plt.figure(figsize=(5, 4))
 
-plt.title(r'$^{97}_{39}Y$, 101.3 MeV')
-# plt.title(r'$^{136}_{53}I$, 74.6 MeV')
-plt.xlabel(r'Distance ($\mu$m)')
-plt.ylabel(r'Stopping power (keV/nm)')
+    plt.plot(
+        bin_centers / 1e4, # ang -> micron
+        nuke_loss_per_bin / num_ions / bin_width / 1e2, # eV/ang -> keV/nm
+        label='Nuclear',
+        marker='o',
+        markersize=3,
+        color='red'
+    )
+    plt.plot(
+        bin_centers / 1e4, # ang -> micron
+        elec_loss_per_bin / num_ions / bin_width / 1e2, # eV/ang -> keV/nm
+        label='Electronic',
+        marker='^',
+        markersize=3,
+        ls='--',
+        color='blue'
+    )
 
-plt.legend()
-plt.savefig('stopping.pdf')
+    if which_ion == 'Y':
+        plt.title(r'$^{97}_{39}Y$, 101.3 MeV')
+    elif which_ion == 'I':
+        plt.title(r'$^{136}_{53}I$, 74.6 MeV')
+
+    plt.xlabel(r'Distance ($\mu$m)')
+    plt.ylabel(r'Stopping power (keV/nm)')
+
+    plt.legend()
+    plt.savefig('/'.join(eloss_file.split('/')[:-1] + [f'{which_ion}_stopping.pdf']))
+
+def main():
+    file_root = sys.argv[1]
+    eloss_file = file_root + '_energy_loss.output'
+    toml_file = file_root + '.toml'
+    which_ion = sys.argv[2]
+
+    create_vis(eloss_file, toml_file, which_ion)
+
+if __name__ == '__main__':
+    main()
