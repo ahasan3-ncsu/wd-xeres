@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
@@ -42,6 +40,7 @@ def create_vis(disp_file, save_ext):
     plt.ylabel(r'Displacement ($\AA$)')
 
     plt.legend(loc='lower right')
+    plt.tight_layout()
     plt.savefig('/'.join(disp_file.split('/')[:-1] + [f'recoil_dr.{save_ext}']))
 
 def main():
