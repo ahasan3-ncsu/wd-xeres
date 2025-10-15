@@ -1,6 +1,5 @@
 Energy discretization
 
-- E_min calculation from xe_calc graph (20 eV)
 - let's just work with 64 nm radius bubbles - one at a time
 
 4 location for off-centered value
@@ -20,20 +19,20 @@ actually, just one is enough. work with #resolved.
 
 TOML
 
-name (positional argument)
-Y, I - particle N (--y_num) - make this 0 by default
-Y, I - particle E (--y_en) - full energy by default
-Y, I - particle pos (--y_pos) - centered by default
-sphere R (--sph_r)
-sphere rho (--sph_rho)
-cuboid corners (--cub_corn)
+filename (positional argument)
+sphere - R, rho
+Y - N, E, pos
+I - N, E, pos
 
 DIRECTORY structure
 
+si_pref
 input replicator
-disseminator
+runner and agg can be local; meaning they can be in headon/
+--V--
+disseminator (creates input files, moves them, runs sims, runs convergence tester)
 
-need to create an intermediate file with the following:
+need to create an intermediate file with the following: (agg.py)
 - num_ions
 - num_xe_recoils
 - num_xe_outside
@@ -52,9 +51,3 @@ headon (equil_pres)
 	- run_1
 	- run_2
 	- ...
-
-Work order
-
-- toml file generation using cli args
-- a runner script that utilizes the above generator
-- convergence tester
