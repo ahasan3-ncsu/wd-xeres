@@ -6,5 +6,6 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "pyqt6>=6.9.1",
+    "tomlkit>=0.13.3",
     "vispy>=0.15.2",
 ]

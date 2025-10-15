@@ -1,0 +1,60 @@
+Energy discretization
+
+- E_min calculation from xe_calc graph (20 eV)
+- let's just work with 64 nm radius bubbles - one at a time
+
+4 location for off-centered value
+headon, Rb + delta, 2 in the middle of the former two
+^ maybe choosing different relative positions will help
+find a pattern
+pick the energy that corresponds to the re-solution peak
+for the peak, maybe have 3 middle positions
+for other energies, maybe have 1 or 2 middle positions
+
+how to deal with convergence of one configuration?
+same with ion convergence
+run 1000 at a time
+check the difference in all 3 values:
+#xe interactions, #outside, #resolved
+actually, just one is enough. work with #resolved.
+
+TOML
+
+name (positional argument)
+Y, I - particle N (--y_num) - make this 0 by default
+Y, I - particle E (--y_en) - full energy by default
+Y, I - particle pos (--y_pos) - centered by default
+sphere R (--sph_r)
+sphere rho (--sph_rho)
+cuboid corners (--cub_corn)
+
+DIRECTORY structure
+
+input replicator
+disseminator
+
+need to create an intermediate file with the following:
+- num_ions
+- num_xe_recoils
+- num_xe_outside
+- num_xe_resolved
+
+create symlinks to scripts/ as necessary
+
+headon (equil_pres)
+- 64 nm (radius)
+  - Y_1MeV (ion type and energy)
+	- run_1
+	- run_2
+	- ...
+	- aggregate data
+  - I_5MeV
+	- run_1
+	- run_2
+	- ...
+
+Work order
+
+- toml file generation using cli args
+- a runner script that utilizes the above generator
+- convergence tester
