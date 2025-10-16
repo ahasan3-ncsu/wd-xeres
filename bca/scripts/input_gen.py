@@ -1,6 +1,5 @@
 import tomlkit
 import argparse
-from si_pref import num_to_si
 
 def gen_toml(arg_dict):
     ### READ
@@ -27,11 +26,13 @@ def gen_toml(arg_dict):
     toml_dict['particle_parameters']['E'][0] = y_en
 
     y_l = float(arg_dict['yttrium'][2])
-    toml_dict['particle_parameters']['pos'][0] = [- radius - delta, y_l / 2**0.5, y_l / 2**0.5]
+    toml_dict['particle_parameters']['pos'][0] = [
+        - radius - delta, y_l / 2**0.5, y_l / 2**0.5
+    ]
 
     y_str = ''
     if y_num:
-        y_str = f'_Y_{num_to_si(y_en)}eV'
+        y_str = f'_Y_{y_en/1e6:.1f}MeV'
         if y_l:
             y_str += f'_l{y_l/10:.0f}nm'
 
@@ -43,18 +44,20 @@ def gen_toml(arg_dict):
     toml_dict['particle_parameters']['E'][1] = i_en
 
     i_l = float(arg_dict['iodine'][2])
-    toml_dict['particle_parameters']['pos'][1] = [- radius - delta, i_l / 2**0.5, i_l / 2**0.5]
+    toml_dict['particle_parameters']['pos'][1] = [
+        - radius - delta, i_l / 2**0.5, i_l / 2**0.5
+    ]
 
     i_str = ''
     if i_num:
-        i_str = f'_I_{num_to_si(i_en)}eV'
+        i_str = f'_I_{i_en/1e6:.1f}MeV'
         if i_l:
             i_str += f'_l{i_l/10:.0f}nm'
 
     ### WRITE
     file_root = arg_dict['filename'].split('.')[0]
     output_name = file_root + f'_{radius/10:.0f}nm' + y_str + i_str
-    toml_dict['options']['name'] = output_name
+    toml_dict['options']['name'] = output_name + '_'
 
     output_toml = output_name + '.toml'
     with open(output_toml, 'w') as f:
