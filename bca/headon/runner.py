@@ -1,5 +1,6 @@
 import os
 import sys
+import glob
 import shutil
 import subprocess
 
@@ -31,7 +32,8 @@ def do_sim(dirpath):
         f.write(res.stdout)
 
     # do cleanup here
-    # especially delete the displacement file
+    for file in glob.glob(os.path.join(run_dir, 'ballbox_*.output')):
+        os.remove(file)
 
     return run_dir
 

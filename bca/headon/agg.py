@@ -24,7 +24,6 @@ def process_output(out_file, data):
 
 def diff_output(old_data, new_data):
     if not old_data['sim_runs']:
-        print('no sim yet')
         return 42.0
 
     old_res_per_sim = old_data['re-solved'] / old_data['sim_runs']
@@ -64,7 +63,7 @@ def main():
         old_data = copy.deepcopy(new_data)
 
     with open(os.path.join(dirpath, 'xe_res.json'), 'w') as f:
-        json.dump(new_data, f)
+        json.dump(new_data, f, indent=4)
 
 if __name__ == '__main__':
     main()
