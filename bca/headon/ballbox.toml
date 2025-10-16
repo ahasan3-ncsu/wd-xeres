@@ -6,7 +6,7 @@ track_recoils = true
 track_recoil_trajectories = false
 track_displacements = true
 track_energy_losses = false
-num_threads = 4
+num_threads = 8
 num_chunks = 10
 electronic_stopping_mode = "INTERPOLATED"
 mean_free_path_model = {"THRESHOLD"={density=1.5e28}}
