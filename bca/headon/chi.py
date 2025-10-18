@@ -6,7 +6,7 @@ def total_xe(rad):
     # ANGSTROM only
     pi = 3.1415926535
 
-    # equilibrium number density for a radius (subject to change)
+    # equilibrium number density for a radius
     n_eq = {
         10: 0.00905,
         20: 0.00908,
@@ -48,18 +48,31 @@ def plotter(E, chi, rad, ion):
 
 def main():
     # energy discretization
-    Y_en = [102, 80, 60, 40, 20, 10, 5, 2, 1, 0.5, 0.1]
-    I_en = [75, 60, 40, 20, 10, 5, 2, 1, 0.5, 0.1]
+    Y_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 80, 102]
+    I_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 75]
 
-    # only intergranular for now
+    # only intergranular bubbles for now
     radii = [64, 128]
 
     for rad in radii:
-        ### YTTRIUM
-        plotter(Y_en, get_chi(Y_en, rad, 'Y'), rad, 'Yttrium')
+        # yttrium
+        Y_chi = get_chi(Y_en, rad, 'Y')
+        Y_dict = {'E': Y_en, 'chi': Y_chi}
 
-        ### IODINE
-        plotter(I_en, get_chi(I_en, rad, 'I'), rad, 'Iodine')
+        with open(f'data/{rad}nm_Y.json', 'w') as f:
+            json.dump(Y_dict, f, indent=4)
+
+        # iodine
+        I_chi = get_chi(I_en, rad, 'I')
+        I_dict = {'E': I_en, 'chi': I_chi}
+
+        with open(f'data/{rad}nm_I.json', 'w') as f:
+            json.dump(I_dict, f, indent=4)
+
+        # plot or not
+        if False:
+            plotter(Y_en, Y_chi, rad, 'Yttrium')
+            plotter(I_en, I_chi, rad, 'Iodine')
 
     return True
 

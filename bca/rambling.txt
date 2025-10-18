@@ -1,3 +1,4 @@
 Now what?
 
-- splines for better interpolation
+- hooray! we got it working.
+- xi needs to be calculated properly
