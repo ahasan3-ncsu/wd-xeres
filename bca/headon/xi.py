@@ -6,9 +6,10 @@ from scipy.interpolate import PchipInterpolator
 import matplotlib.pyplot as plt
 from matplotlib.colors import SymLogNorm
 
-grid_size = int(5e2) # 50 nm
+grid_size = int(5e2) # ANGSTROM
 num_rows = int(9e4 / grid_size) # 9 micron
 num_cols = int(5e4 / grid_size) # 5 micron
+delta = 1000
 
 def pchip_spline(json_file):
     with open(json_file, 'r') as f:
@@ -41,14 +42,29 @@ def add_prob(grid_data):
 
     return grid_data
 
-def add_xi(grid_data, spline):
+def add_xi(grid_data, Rb, spline):
     for i in range(num_rows):
         for j in range(num_cols):
             grid_data[i][j]['xi'] = (
                 grid_data[i][j]['probability']
+                * (Rb + delta)**2
                 * get_chi(spline, grid_data[i][j]['energies'])
             )
 
+    return grid_data
+
+def add_db(grid_data):
+    b = 0.0
+    for i in range(num_rows):
+        for j in range(num_cols):
+            surf_area = np.pi * ((j+1)**2 - j**2) * grid_size**2
+            grid_data[i][j]['db'] = (
+                grid_data[i][j]['xi']
+                * surf_area * grid_size
+            )
+            b += grid_data[i][j]['db']
+
+    print(b)
     return grid_data
 
 def plot_prop(grid_data, prop, pnorm):
@@ -79,12 +95,14 @@ def main():
 
     grid = extract_grid(grid_file)
     grid = add_prob(grid)
-    grid = add_xi(grid, spline)
+    grid = add_xi(grid, int(rad) * 10, spline)
+    grid = add_db(grid)
 
-    plot_prop(grid, 'probability', SymLogNorm(linthresh=1e-11))
-    plot_prop(grid, 'energies', 'linear')
+    # plot_prop(grid, 'probability', SymLogNorm(linthresh=1e-11))
+    # plot_prop(grid, 'energies', 'linear')
 
-    plot_prop(grid, 'xi', SymLogNorm(linthresh=1e-19))
+    plot_prop(grid, 'xi', SymLogNorm(linthresh=1e-12))
+    plot_prop(grid, 'db', SymLogNorm(linthresh=1e-2))
 
 if __name__ == '__main__':
     main()
