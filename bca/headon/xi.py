@@ -6,20 +6,6 @@ from scipy.interpolate import PchipInterpolator
 import matplotlib.pyplot as plt
 from matplotlib.colors import SymLogNorm
 
-def pchip_spline(json_file):
-    with open(json_file, 'r') as f:
-        jar = json.load(f)
-
-    # E -> MeV; chi -> fraction
-    return PchipInterpolator(jar['E'], jar['chi'])
-
-def get_chi(spline, energy, l, Rb, delta):
-    # convert to MeV; eliminate negatives
-    chi_0 = max(0, spline(energy / 1e6))
-    f_l = (1 + np.cos(np.pi * l/(Rb+delta))) / 2
-
-    return chi_0 * f_l
-
 def extract_grid(grid_file):
     with open(grid_file, 'rb') as f:
         grid_data = pickle.load(f)
@@ -41,50 +27,19 @@ def add_prob(grid_data, grid_info):
 
     return grid_data
 
-def add_xi(grid_data, grid_info, spline, mesh_info):
-    cell_size, num_rows, num_cols = (
-        grid_info['cell_size'], grid_info['num_rows'], grid_info['num_cols']
-    )
-    Rb, delta, nel_mesh = (
-        mesh_info['Rb'], mesh_info['delta'], mesh_info['nel_mesh']
-    )
-    T = np.linspace(0, 1, nel_mesh+1)
-    T = (T[1:] + T[:-1]) / 2
+def pchip_spline(json_file):
+    with open(json_file, 'r') as f:
+        jar = json.load(f)
 
-    for i in range(num_rows):
-        for j in range(num_cols):
-            # this speeds up the calculation a lot
-            if grid_data[i][j]['num_ions']:
-                x, w = i * cell_size, j * cell_size
-                alpha = grid_data[i][j]['angles']
-                points = get_grid_points(x, w, alpha, Rb, delta, T)
+    # E -> MeV; chi -> fraction
+    return PchipInterpolator(jar['E'], jar['chi'])
 
-                sum = 0.0
-                for p in points:
-                    xp, wp, lp = p
-                    # better corner case impl. needed
-                    ip, jp = max(0, int(xp / cell_size)), int(wp / cell_size)
-                    sum += (
-                        grid_data[ip][jp]['probability']
-                        * get_chi(
-                                spline,
-                                grid_data[ip][jp]['energies'],
-                                lp, Rb, delta
-                            )
-                    )
+def get_chi(spline, energy, l, Rb, delta):
+    # convert to MeV; eliminate negatives
+    chi_0 = max(0, spline(energy / 1e6))
+    f_l = (1 + np.cos(np.pi * l/(Rb+delta))) / 2
 
-                sum *= (2*(Rb+delta) / nel_mesh) ** 2
-                grid_data[i][j]['xi'] = sum
-            else:
-                grid_data[i][j]['xi'] = 0
-
-            # grid_data[i][j]['xi'] = (
-            #     grid_data[i][j]['probability']
-            #     * 4 * (Rb + delta)**2
-            #     * get_chi(spline, grid_data[i][j]['energies'], 0, Rb, delta)
-            # )
-
-    return grid_data
+    return chi_0 * f_l
 
 def get_grid_points(x, w, alpha, Rb, delta, T):
     D = Rb + delta
@@ -108,6 +63,45 @@ def get_grid_points(x, w, alpha, Rb, delta, T):
             points.append((p, _w, _l))
 
     return points
+
+def add_xi(grid_data, grid_info, spline, mesh_info):
+    cell_size, num_rows, num_cols = (
+        grid_info['cell_size'], grid_info['num_rows'], grid_info['num_cols']
+    )
+    Rb, delta, nel_mesh = (
+        mesh_info['Rb'], mesh_info['delta'], mesh_info['nel_mesh']
+    )
+    T = np.linspace(0, 1, nel_mesh+1)
+    T = (T[1:] + T[:-1]) / 2
+
+    for i in range(num_rows):
+        for j in range(num_cols):
+            # avoid unnecessary compute
+            if grid_data[i][j]['num_ions']:
+                x, w = i * cell_size, j * cell_size
+                alpha = grid_data[i][j]['angles']
+                points = get_grid_points(x, w, alpha, Rb, delta, T)
+
+                sum = 0.0
+                for p in points:
+                    xp, wp, lp = p
+                    # better corner case impl. needed
+                    ip, jp = max(0, int(xp / cell_size)), int(wp / cell_size)
+                    sum += (
+                        grid_data[ip][jp]['probability']
+                        * get_chi(
+                                spline,
+                                grid_data[ip][jp]['energies'],
+                                lp, Rb, delta
+                            )
+                    )
+
+                sum *= (2*(Rb+delta) / nel_mesh) ** 2 / np.cos(alpha)
+                grid_data[i][j]['xi'] = sum
+            else:
+                grid_data[i][j]['xi'] = 0
+
+    return grid_data
 
 def add_db(grid_data, grid_info):
     cell_size, num_rows, num_cols = (
@@ -169,9 +163,6 @@ def main():
     grid = add_prob(grid, grid_info)
     grid = add_xi(grid, grid_info, spline, mesh_info)
     grid = add_db(grid, grid_info)
-
-    # get_grid_points(x, w, alpha, Rb, delta, T):
-    # get_grid_points(1e4, 1e4, 0.3, 640, 1e3, [0.167, 0.5, 0.833])
 
     # plot_prop(grid, 'probability', SymLogNorm(linthresh=1e-11))
     # plot_prop(grid, 'energies', 'linear')

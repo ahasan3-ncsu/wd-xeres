@@ -1,5 +1,8 @@
 Now what?
 
-- hooray! we got it working.
 - xi needs to be calculated properly
-- go all the way; implement the surface grid
+- the assumption was alpha is the same all across the surface mesh
+- this produces bad results near the origin
+- maybe we should allow each mesh element to have a different angle
+- A/cos(alpha) will have to change then
+- l calculation will also be more complicated
