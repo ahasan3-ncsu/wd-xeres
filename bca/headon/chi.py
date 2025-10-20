@@ -52,7 +52,7 @@ def main():
     I_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 75]
 
     # only intergranular bubbles for now
-    radii = [64, 128]
+    radii = [8, 16, 32, 64, 128]
 
     for rad in radii:
         # yttrium

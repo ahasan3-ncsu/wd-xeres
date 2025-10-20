@@ -32,11 +32,11 @@ def main():
     }
 
     # energy discretization
-    Y_en = [102, 80, 60, 40, 20, 10, 5, 2, 1, 0.5, 0.1]
-    I_en = [75, 60, 40, 20, 10, 5, 2, 1, 0.5, 0.1]
+    Y_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 80, 102]
+    I_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 75]
 
     # only intergranular for now
-    radii = [64, 128]
+    radii = [8, 16, 32, 64, 128]
 
     arg_dict = {'filename': 'ballbox.toml'}
 
