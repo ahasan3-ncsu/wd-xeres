@@ -76,30 +76,39 @@ def add_xi(grid_data, grid_info, spline, mesh_info):
 
     for i in range(num_rows):
         for j in range(num_cols):
-            # avoid unnecessary compute
-            if grid_data[i][j]['num_ions']:
-                x, w = i * cell_size, j * cell_size
-                alpha = grid_data[i][j]['angles']
-                points = get_grid_points(x, w, alpha, Rb, delta, T)
-
-                sum = 0.0
-                for p in points:
-                    xp, wp, lp = p
-                    # better corner case impl. needed
-                    ip, jp = max(0, int(xp / cell_size)), int(wp / cell_size)
-                    sum += (
-                        grid_data[ip][jp]['probability']
-                        * get_chi(
-                                spline,
-                                grid_data[ip][jp]['energies'],
-                                lp, Rb, delta
-                            )
-                    )
-
-                sum *= (2*(Rb+delta) / nel_mesh) ** 2 / np.cos(alpha)
-                grid_data[i][j]['xi'] = sum
-            else:
+            # no ion in these cells
+            if not grid_data[i][j]['num_ions']:
                 grid_data[i][j]['xi'] = 0
+                continue
+
+            x, w = i * cell_size, j * cell_size
+            alpha = grid_data[i][j]['angles']
+            points = get_grid_points(x, w, alpha, Rb, delta, T)
+
+            sum = 0.0
+            for p in points:
+                xp, wp, lp = p
+                ip, jp = max(0, int(xp / cell_size)), int(wp / cell_size)
+                # better corner case impl. needed
+                # for now, remove elements with notably different angles
+                if abs(grid_data[ip][jp]['angles']- alpha) > 0.2:
+                    continue
+
+                sum += (
+                    grid_data[ip][jp]['probability']
+                    * get_chi(
+                            spline,
+                            grid_data[ip][jp]['energies'],
+                            lp, Rb, delta
+                        )
+                )
+
+            sum *= (2*(Rb+delta) / nel_mesh) ** 2 / np.cos(alpha)
+            grid_data[i][j]['xi'] = sum
+
+    # ff origin cannot be inside the bubble
+    for i in range(Rb // cell_size + 1):
+        grid_data[i][0]['xi'] = 0
 
     return grid_data
 
