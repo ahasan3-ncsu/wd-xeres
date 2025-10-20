@@ -6,11 +6,6 @@ from scipy.interpolate import PchipInterpolator
 import matplotlib.pyplot as plt
 from matplotlib.colors import SymLogNorm
 
-grid_size = int(5e2) # ANGSTROM
-num_rows = int(9e4 / grid_size) # 9 micron
-num_cols = int(5e4 / grid_size) # 5 micron
-delta = 1000
-
 def pchip_spline(json_file):
     with open(json_file, 'r') as f:
         jar = json.load(f)
@@ -18,12 +13,12 @@ def pchip_spline(json_file):
     # E -> MeV; chi -> fraction
     return PchipInterpolator(jar['E'], jar['chi'])
 
-def get_chi(spline, energy):
-    mev = energy / 1e6
-    chi = spline(mev)
+def get_chi(spline, energy, l, Rb, delta):
+    # convert to MeV; eliminate negatives
+    chi_0 = max(0, spline(energy / 1e6))
+    f_l = (1 + np.cos(np.pi * l/(Rb+delta))) / 2
 
-    # eliminate negatives
-    return max(0, chi)
+    return chi_0 * f_l
 
 def extract_grid(grid_file):
     with open(grid_file, 'rb') as f:
@@ -31,40 +26,105 @@ def extract_grid(grid_file):
 
     return grid_data
 
-def add_prob(grid_data):
+def add_prob(grid_data, grid_info):
+    cell_size, num_rows, num_cols = (
+        grid_info['cell_size'], grid_info['num_rows'], grid_info['num_cols']
+    )
+
     total_ions = grid_data[0][0]['num_ions']
     for i in range(num_rows):
         for j in range(num_cols):
-            surf_area = np.pi * ((j+1)**2 - j**2) * grid_size**2
+            surf_area = np.pi * ((j+1)**2 - j**2) * cell_size**2
             grid_data[i][j]['probability'] = (
                 grid_data[i][j]['num_ions'] / total_ions / surf_area
             )
 
     return grid_data
 
-def add_xi(grid_data, Rb, spline):
+def add_xi(grid_data, grid_info, spline, mesh_info):
+    cell_size, num_rows, num_cols = (
+        grid_info['cell_size'], grid_info['num_rows'], grid_info['num_cols']
+    )
+    Rb, delta, nel_mesh = (
+        mesh_info['Rb'], mesh_info['delta'], mesh_info['nel_mesh']
+    )
+    T = np.linspace(0, 1, nel_mesh+1)
+    T = (T[1:] + T[:-1]) / 2
+
     for i in range(num_rows):
         for j in range(num_cols):
-            grid_data[i][j]['xi'] = (
-                grid_data[i][j]['probability']
-                * (Rb + delta)**2
-                * get_chi(spline, grid_data[i][j]['energies'])
-            )
+            # this speeds up the calculation a lot
+            if grid_data[i][j]['num_ions']:
+                x, w = i * cell_size, j * cell_size
+                alpha = grid_data[i][j]['angles']
+                points = get_grid_points(x, w, alpha, Rb, delta, T)
+
+                sum = 0.0
+                for p in points:
+                    xp, wp, lp = p
+                    # better corner case impl. needed
+                    ip, jp = max(0, int(xp / cell_size)), int(wp / cell_size)
+                    sum += (
+                        grid_data[ip][jp]['probability']
+                        * get_chi(
+                                spline,
+                                grid_data[ip][jp]['energies'],
+                                lp, Rb, delta
+                            )
+                    )
+
+                sum *= (2*(Rb+delta) / nel_mesh) ** 2
+                grid_data[i][j]['xi'] = sum
+            else:
+                grid_data[i][j]['xi'] = 0
+
+            # grid_data[i][j]['xi'] = (
+            #     grid_data[i][j]['probability']
+            #     * 4 * (Rb + delta)**2
+            #     * get_chi(spline, grid_data[i][j]['energies'], 0, Rb, delta)
+            # )
 
     return grid_data
 
-def add_db(grid_data):
+def get_grid_points(x, w, alpha, Rb, delta, T):
+    D = Rb + delta
+    cos_a = np.cos(alpha)
+    sin_a = np.sin(alpha)
+
+    xp, wp = x  - D * cos_a, w  - D * sin_a
+    p1, q1 = xp - D * sin_a, wp + D * cos_a
+    p2, q2 = xp + D * sin_a, wp - D * cos_a
+
+    points = []
+    for t1 in T:
+        p = p1 + t1 * (p2 - p1)
+        q = q1 + t1 * (q2 - q1)
+        for t2 in T:
+            z = -D + t2 * (2 * D)
+            # point in question: (p, q, z)
+            # central point: (xp, wp, 0)
+            _w = (q**2 + z**2) ** 0.5
+            _l = ((p - xp)**2 + (q - wp)**2 + z**2) ** 0.5
+            points.append((p, _w, _l))
+
+    return points
+
+def add_db(grid_data, grid_info):
+    cell_size, num_rows, num_cols = (
+        grid_info['cell_size'], grid_info['num_rows'], grid_info['num_cols']
+    )
+
     b = 0.0
     for i in range(num_rows):
         for j in range(num_cols):
-            surf_area = np.pi * ((j+1)**2 - j**2) * grid_size**2
+            surf_area = np.pi * ((j+1)**2 - j**2) * cell_size**2
             grid_data[i][j]['db'] = (
                 grid_data[i][j]['xi']
-                * surf_area * grid_size
+                * surf_area * cell_size
             )
             b += grid_data[i][j]['db']
 
-    print(b)
+    print(b * 1e-30) # b/Fdot; angstrom^3 -> m^3
     return grid_data
 
 def plot_prop(grid_data, prop, pnorm):
@@ -91,12 +151,27 @@ def main():
     print(json_file)
     print(grid_file)
 
+    # ANGSTROM
+    grid_info = {
+        'cell_size': 500,
+        'num_rows' : 180,
+        'num_cols' : 100,
+    }
+    mesh_info = {
+        'Rb'      : int(rad) * 10,
+        'delta'   : 1000,
+        'nel_mesh': 3,
+    }
+
     spline = pchip_spline(json_file)
 
     grid = extract_grid(grid_file)
-    grid = add_prob(grid)
-    grid = add_xi(grid, int(rad) * 10, spline)
-    grid = add_db(grid)
+    grid = add_prob(grid, grid_info)
+    grid = add_xi(grid, grid_info, spline, mesh_info)
+    grid = add_db(grid, grid_info)
+
+    # get_grid_points(x, w, alpha, Rb, delta, T):
+    # get_grid_points(1e4, 1e4, 0.3, 640, 1e3, [0.167, 0.5, 0.833])
 
     # plot_prop(grid, 'probability', SymLogNorm(linthresh=1e-11))
     # plot_prop(grid, 'energies', 'linear')

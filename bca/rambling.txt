@@ -2,3 +2,4 @@ Now what?
 
 - hooray! we got it working.
 - xi needs to be calculated properly
+- go all the way; implement the surface grid
