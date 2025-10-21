@@ -34,15 +34,18 @@ def pchip_spline(json_file):
     # E -> MeV; chi -> fraction
     return PchipInterpolator(jar['E'], jar['chi'])
 
-def get_chi(spline, energy, l, Rb, delta):
+def get_chi(spline, energy, l, D):
     # convert to MeV; eliminate negatives
     chi_0 = max(0, spline(energy / 1e6))
-    f_l = (1 + np.cos(np.pi * l/(Rb+delta))) / 2
+
+    if l > D:
+        f_l = 0
+    else:
+        f_l = (1 + np.cos(np.pi * l / D)) / 2
 
     return chi_0 * f_l
 
-def get_grid_points(x, w, alpha, Rb, delta, T):
-    D = Rb + delta
+def get_grid_points(x, w, alpha, D, T):
     cos_a = np.cos(alpha)
     sin_a = np.sin(alpha)
 
@@ -71,6 +74,7 @@ def add_xi(grid_data, grid_info, spline, mesh_info):
     Rb, delta, nel_mesh = (
         mesh_info['Rb'], mesh_info['delta'], mesh_info['nel_mesh']
     )
+    D = Rb + delta
     T = np.linspace(0, 1, nel_mesh+1)
     T = (T[1:] + T[:-1]) / 2
 
@@ -83,7 +87,7 @@ def add_xi(grid_data, grid_info, spline, mesh_info):
 
             x, w = i * cell_size, j * cell_size
             alpha = grid_data[i][j]['angles']
-            points = get_grid_points(x, w, alpha, Rb, delta, T)
+            points = get_grid_points(x, w, alpha, D, T)
 
             sum = 0.0
             for p in points:
@@ -91,7 +95,7 @@ def add_xi(grid_data, grid_info, spline, mesh_info):
                 ip, jp = max(0, int(xp / cell_size)), int(wp / cell_size)
                 # better corner case impl. needed
                 # for now, remove elements with notably different angles
-                if abs(grid_data[ip][jp]['angles']- alpha) > 0.2:
+                if abs(grid_data[ip][jp]['angles'] - alpha) > 0.8:
                     continue
 
                 sum += (
@@ -99,11 +103,11 @@ def add_xi(grid_data, grid_info, spline, mesh_info):
                     * get_chi(
                             spline,
                             grid_data[ip][jp]['energies'],
-                            lp, Rb, delta
+                            lp, D
                         )
                 )
 
-            sum *= (2*(Rb+delta) / nel_mesh) ** 2 / np.cos(alpha)
+            sum *= (2 * D / nel_mesh) ** 2 / np.cos(alpha)
             grid_data[i][j]['xi'] = sum
 
     # ff origin cannot be inside the bubble
@@ -163,7 +167,7 @@ def main():
     mesh_info = {
         'Rb'      : int(rad) * 10,
         'delta'   : 1000,
-        'nel_mesh': 3,
+        'nel_mesh': 5,
     }
 
     spline = pchip_spline(json_file)
