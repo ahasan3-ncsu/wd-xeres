@@ -107,7 +107,7 @@ def add_xi(grid_data, grid_info, spline, mesh_info):
                         )
                 )
 
-            sum *= (2 * D / nel_mesh) ** 2 / np.cos(alpha)
+            sum *= (2 * D / nel_mesh)**2 / np.cos(alpha)
             grid_data[i][j]['xi'] = sum
 
     # ff origin cannot be inside the bubble
