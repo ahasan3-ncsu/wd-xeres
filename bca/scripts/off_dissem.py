@@ -12,7 +12,7 @@ def irun(idict, ipath):
     shutil.move(ifile, ipath)
 
     # run sim, get xe_res number
-    subprocess.run(['python', 'runner.py', ipath, '1'])
+    subprocess.run(['python', 'runner.py', ipath, '2'])
     # aggregate xe_res, test convergence
     subprocess.run(['python', 'agg.py', ipath])
 
@@ -55,7 +55,7 @@ def main():
                 if os.path.exists(subdirpath):
                     continue
 
-                arg_dict['yttrium'] = [10, y_e * 1e6, l]
+                arg_dict['yttrium'] = [1000, y_e * 1e6, l]
                 arg_dict['iodine'] = [0, 0.0, l]
 
                 irun(arg_dict, subdirpath)
@@ -67,7 +67,7 @@ def main():
                     continue
 
                 arg_dict['yttrium'] = [0, 0.0, l]
-                arg_dict['iodine'] = [10, i_e * 1e6, l]
+                arg_dict['iodine'] = [1000, i_e * 1e6, l]
 
                 irun(arg_dict, subdirpath)
 

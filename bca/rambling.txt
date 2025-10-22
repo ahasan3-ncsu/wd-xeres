@@ -1,8 +1,7 @@
 Now what?
 
-- xi needs to be calculated properly
-- the assumption was alpha is the same all across the surface mesh
-- this produces bad results near the origin
-- maybe we should allow each mesh element to have a different angle
-- A/cos(alpha) will have to change then
-- l calculation will also be more complicated
+- ANOPCR : awareness, nothingness, options, predictions, choice, review
+- no music or anything else
+
+- offcenter and pressure sims
+- let's do this!
