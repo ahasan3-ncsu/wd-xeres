@@ -35,14 +35,14 @@ def main():
     Y_en = [1, 20]
     I_en = [1, 20]
 
-    # only intergranular for now
+    # maybe include 32 as well
     radii = [8, 64]
 
     arg_dict = {'filename': 'ballbox.toml'}
 
     for rad in radii:
-        D = rad * 10 + 1000
-        L = list(range(100, D, 500))
+        Rb = rad * 10
+        L = [Rb // 2] + list(range(Rb, Rb + 1000, 250))
 
         arg_dict['sphere'] = [rad * 10, n_eq[rad]]
 

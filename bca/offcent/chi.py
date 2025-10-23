@@ -50,8 +50,9 @@ def main():
     I_en = [1, 20]
 
     for rad in radii:
-        D = rad * 10 + 1000
-        L = [0] + list(range(100, D, 500))
+        Rb = rad * 10
+        D = Rb + 1000
+        L = [0, Rb // 2] + list(range(Rb, D, 250))
 
         # yttrium
         for y_e in Y_en:
