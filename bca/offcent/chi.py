@@ -44,10 +44,10 @@ def get_chi(L, en, rad, ion):
     return chi
 
 def main():
-    radii = [8, 64]
+    radii = [8, 32, 64]
 
-    Y_en = [1, 20]
-    I_en = [1, 20]
+    Y_en = []
+    I_en = [1, 10, 20]
 
     for rad in radii:
         Rb = rad * 10

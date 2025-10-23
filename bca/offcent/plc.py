@@ -10,7 +10,7 @@ def plotter(data_dir, mode=1):
 
     markers = itertools.cycle(('o','s','p','v','x','+','^'))
     tints = itertools.cycle((0.2,0.8,0.4,0.6,0.0,1.0))
-    lines = itertools.cycle(('-', '--', ':', '-.', (0, (5, 10))))
+    lstyles = itertools.cycle(('-', '--', ':', '-.', (0, (5, 10))))
 
     plt.figure(figsize=(5,4))
 
@@ -22,30 +22,60 @@ def plotter(data_dir, mode=1):
         L = foo['L']
         chi = foo['chi']
 
-        # normalize by R_b
+        chi = [c / chi[0] for c in chi]
+
+        m = chi[2]
+
         Rb = int(jname.split('_')[0][:-2]) * 10
+
+        mark = next(markers)
+        tint = next(tints)
+        lsty = next(lstyles)
+
         if mode == 1:
             L = [l / Rb for l in L]
 
-            xa = np.linspace(0, 1, 100)
-            ya = [1 for x in xa]
-            plt.plot(xa, ya, color='k', ls='--')
+            # anchor right end to chi(E, R_b)
+            # xa = np.linspace(0, 1, 100)
+            # ya = [1 + (m-1) * x for x in xa]
+            # plt.plot(
+            #     xa, ya,
+            #     color=plt.cm.jet(tint),
+            #     ls=lsty
+            # )
         elif mode == 2:
             L = [l - Rb for l in L]
 
-            xb = np.linspace(0, 1000, 100)
-            yb = [np.exp(-x/200) for x in xb]
-            plt.plot(xb, yb, color='k', ls='--')
-
-        chi = [c / chi[0] for c in chi]
+            # anchor left end to chi(E, R_b)
+            # xb = np.linspace(0, 1000, 100)
+            # yb = [m * np.exp(-x/200) for x in xb]
+            # plt.plot(
+            #     xb, yb,
+            #     color=plt.cm.jet(tint),
+            #     ls=lsty
+            # )
 
         plt.plot(
             L, chi,
-            marker=next(markers),
-            color=plt.cm.jet(next(tints)),
-            ls=next(lines),
+            marker=mark,
+            color=plt.cm.jet(tint),
+            ls=lsty,
             label=f'{jname[:-5]}'
         )
+
+        # plt.scatter(
+        #     L, chi,
+        #     marker=mark,
+        #     color=plt.cm.jet(tint),
+        # )
+        #
+        # plt.plot(
+        #     [], [],
+        #     marker=mark,
+        #     color=plt.cm.jet(tint),
+        #     ls=lsty,
+        #     label=f'{jname[:-5]}'
+        # )
 
     if mode == 1:
         plt.xlim([0, 1])

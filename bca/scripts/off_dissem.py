@@ -31,12 +31,12 @@ def main():
         128: 0.00209
     }
 
-    # energy discretization
-    Y_en = [1, 20]
-    I_en = [1, 20]
+    # ion type has negligible impact
+    Y_en = []
+    I_en = [1, 10, 20]
 
     # maybe include 32 as well
-    radii = [8, 64]
+    radii = [8, 32, 64]
 
     arg_dict = {'filename': 'ballbox.toml'}
 
