@@ -39,8 +39,8 @@ def main():
             label=f'{jname[:-5]}'
         )
 
-    plt.xlabel(r'$\ell$ / $R_b$')
-    plt.ylabel(r'$\chi(E, 0)$ / $\chi(E, \ell)$')
+    plt.xlabel(r'$\ell$ / ($R_b$ + $\delta)$')
+    plt.ylabel(r'$\chi(E, \ell)$ / $\chi(E, 0)$')
 
     plt.legend()
     plt.tight_layout()

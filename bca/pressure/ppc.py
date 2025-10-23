@@ -60,8 +60,8 @@ def main():
     plt.yscale('log')
     plt.ylim([2e-9, 2e-5])
 
-    plt.xlabel(r'Relative Xe number density, $\rho$ / $\rho_{eq}$')
-    plt.ylabel(r'Re-solved bubble fraction, $\chi$')
+    plt.xlabel(r'Relative Xe number density, $n$ / $n_{eq}$')
+    plt.ylabel(r'Re-solved bubble fraction, $\chi(E, 0)$')
 
     plt.legend(ncol=2, bbox_to_anchor=[0.5, 0.15], loc='center')
     plt.tight_layout()
