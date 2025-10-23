@@ -10,7 +10,7 @@ def main():
 
     markers = itertools.cycle(('o','s','p','v','x','+','^'))
     tints = itertools.cycle((0.2,0.8,0.4,0.6,0.0,1.0))
-    lines = itertools.cycle(('-', '--', ':', '-.', (0, (5, 10))))
+    lstyles = itertools.cycle(('-', '--', ':', '-.', (0, (5, 10))))
 
     plt.figure(figsize=(5, 4))
 
@@ -23,6 +23,10 @@ def main():
         rxe = foo['rxe']
         chi = foo['chi']
 
+        mark = next(markers)
+        tint = next(tints)
+        lsty = next(lstyles)
+
         # plt.plot(
         #     P, rxe,
         #     marker=next(markers),
@@ -32,21 +36,31 @@ def main():
         # )
         # plt.hlines(rxe[1], 0.8, 1.4, color='k', ls=':')
 
-        plt.plot(
+        plt.scatter(
             P, chi,
-            marker=next(markers),
-            color=plt.cm.jet(next(tints)),
-            ls=next(lines),
-            label=f'{jname[:-5]}'
+            marker=mark,
+            color=plt.cm.jet(tint)
         )
 
         pred = [chi[1] / x for x in P]
-        plt.plot(P, pred, color='k', ls=':')
+        plt.plot(
+            P, pred,
+            color=plt.cm.jet(tint),
+            ls=lsty
+        )
+
+        plt.plot(
+            [], [],
+            marker=mark,
+            color=plt.cm.jet(tint),
+            ls=lsty,
+            label=f'{jname[:-5]}'
+        )
 
     plt.yscale('log')
     plt.ylim([2e-9, 2e-5])
 
-    plt.xlabel(r'$\rho_{eq}$ / $\rho$')
+    plt.xlabel(r'Relative Xe number density, $\rho$ / $\rho_{eq}$')
     plt.ylabel(r'Re-solved bubble fraction, $\chi$')
 
     plt.legend(ncol=2, bbox_to_anchor=[0.5, 0.15], loc='center')
