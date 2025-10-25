@@ -12,7 +12,7 @@ def irun(idict, ipath):
     shutil.move(ifile, ipath)
 
     # run sim, get xe_res number
-    subprocess.run(['python', 'runner.py', ipath, '1'])
+    subprocess.run(['python', 'runner.py', ipath, '2'])
     # aggregate xe_res, test convergence
     subprocess.run(['python', 'agg.py', ipath])
 
@@ -31,18 +31,16 @@ def main():
         128: 0.00209
     }
 
-    # ion type has negligible impact
     Y_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 80, 102]
-    I_en = []
+    I_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 75]
 
-    # maybe include 32 as well
-    radii = [8, 64]
+    radii = [8, 16, 32, 64, 128]
 
     arg_dict = {'filename': 'ballbox.toml'}
 
     for rad in radii:
-        Rb = rad * 10
-        L = [Rb, Rb + 1000 // 2]
+        D = rad * 10 + 1000
+        L = [i * D // 4 for i in range(1, 4)]
 
         arg_dict['sphere'] = [rad * 10, n_eq[rad]]
 
