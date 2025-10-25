@@ -44,18 +44,15 @@ def get_chi(L, en, rad, ion):
     return chi
 
 def main():
-    # radii = [8, 32, 64]
-    radii = [64]
+    radii = [8, 64]
 
-    Y_en = [1, 20]
-    I_en = [1, 20]
+    Y_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 80, 102]
+    I_en = []
 
     for rad in radii:
         Rb = rad * 10
         D = Rb + 1000
-        # L = [0, Rb // 2] + list(range(Rb, D, 250))
-        L = [0, 100, 320, 600, 640, 890, 1100, 1140, 1390, 1600]
-        # L = [0, 40, 80, 100, 330, 580, 600, 830]
+        L = [0, Rb, Rb + 1000 // 2]
 
         # yttrium
         for y_e in Y_en:

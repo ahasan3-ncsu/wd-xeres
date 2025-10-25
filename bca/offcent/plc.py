@@ -49,11 +49,13 @@ def plotter(data_dir, mode=1):
             if x < x1:
                 return 1 + (y1 - 1) / x1 * x
             else:
+                if y2 == 0.0:
+                    y2 = 0.01 * y1
                 c = (x2 - x1) / np.log(y1 / y2)
                 return y1 * np.exp(-(x - x1) / c)
         xc = np.linspace(0, L[-1], 100)
         yc = [
-            fit(x, L[4], chi[4], L[-4], chi[-4])
+            fit(x, L[1], chi[1], L[2], chi[2])
             for x in xc
         ]
 
