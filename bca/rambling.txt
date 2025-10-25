@@ -1,7 +1,33 @@
 Now what?
 
-- ANOPCR : awareness, nothingness, options, predictions, choice, review
-- no music or anything else
+plan of action
+1. which point is better for exponential fit
+2. run a fine energy grid for 8 nm and 64 nm (1k each)
 
-- offcenter and pressure sims
-- let's do this!
+the critical point is at R_b
+linear before that
+exponential after that
+to get the exponential decay, what point should we get?
+the point at 1/3rd the way or 1/2 the way
+let's make a fit to see which point is better
+
+how does the trend change with energy?
+
+is it better to just get grid point values?
+after all, that's all that matters
+
+the major problem is the energy dependence
+
+should we look into the total number of recoils
+what if the left tapering is because of bubble volume
+let's look into it; there might be some clues
+
+only Y (see reason below)
+all radii
+2 different l (needs justification)
+how many energies? (this is the issue)
+
+there might be patterns
+like 20 MeV and 100 MeV are very similar
+hold on a second
+I have to do Y then, not I. 102 vs 75 MeV.
