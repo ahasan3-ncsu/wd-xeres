@@ -20,17 +20,17 @@ def total_xe(rad):
 
     return 4 / 3 * pi * rad**3 * n_eq[rad]
 
-def get_chi(L, en, rad, ion):
+def get_chi(E, l, rad, ion):
     chi = []
 
-    for l in L:
+    for en in E:
         if l:
             subdirpath = f'{rad}nm/{ion}_{en:.1f}MeV/l{l/10:.0f}nm'
         else:
             subdirpath = f'../headon/{rad}nm/{ion}_{en:.1f}MeV'
 
         if not os.path.exists(subdirpath):
-            raise ValueError('fix your shit')
+            raise ValueError(f'fix your shit: {subdirpath}')
 
         with open(os.path.join(subdirpath, 'xe_res.json')) as f:
             foo = json.load(f)
@@ -44,31 +44,34 @@ def get_chi(L, en, rad, ion):
     return chi
 
 def main():
-    radii = [8, 64]
+    radii = [8]
 
     Y_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 80, 102]
-    I_en = []
+    I_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 75]
 
     for rad in radii:
-        Rb = rad * 10
-        D = Rb + 1000
-        L = [0, Rb, Rb + 1000 // 2]
+        D = rad * 10 + 1000
+        L = [0] + [i * D // 4 for i in range(1, 4)]
 
         # yttrium
-        for y_e in Y_en:
-            Y_chi = get_chi(L, y_e, rad, 'Y')
-            Y_dict = {'L': L + [D], 'chi': Y_chi + [0.0]}
+        Y_chi = []
+        for l in L:
+            Y_chi.append(get_chi(Y_en, l, rad, 'Y'))
 
-            with open(f'data/{rad}nm_Y_{y_e:.1f}MeV.json', 'w') as f:
-                json.dump(Y_dict, f, indent=4)
+        Y_chi.append([0.0] * len(Y_en))
+        Y_dict = {'L': L + [D], 'E': Y_en, 'chi': Y_chi}
+        with open(f'data/{rad}nm_Y.json', 'w') as f:
+            json.dump(Y_dict, f, indent=4)
 
         # iodine
-        for i_e in I_en:
-            I_chi = get_chi(L, i_e, rad, 'I')
-            I_dict = {'L': L + [D], 'chi': I_chi + [0.0]}
+        I_chi = []
+        for l in L:
+            I_chi.append(get_chi(I_en, l, rad, 'I'))
 
-            with open(f'data/{rad}nm_I_{i_e:.1f}MeV.json', 'w') as f:
-                json.dump(I_dict, f, indent=4)
+        I_chi.append([0.0] * len(I_en))
+        I_dict = {'L': L + [D], 'E': I_en, 'chi': I_chi}
+        with open(f'data/{rad}nm_I.json', 'w') as f:
+            json.dump(I_dict, f, indent=4)
 
     return True
 
