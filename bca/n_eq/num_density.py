@@ -61,7 +61,7 @@ phi_ronchi = [11.86 / i for i in v_ronchi]
 # number density (1/m^3)
 n_ronchi = [i * 5e28 for i in phi_ronchi]
 
-### Beeler 2020 EOS
+### Beeler 2020 EOS Virial
 def b2020_v_p(v):
     T = 400
 
@@ -94,6 +94,31 @@ for p in p_b2020:
 phi_b2020 = [11.86 / i for i in v_b2020]
 # number density (1/m^3)
 n_b2020 = [i * 5e28 for i in phi_b2020]
+
+### Beeler 2020 EOS Kaplun
+def kaplun_v_p(v):
+    T = 400
+
+    a = 259780
+    b = 18.928
+    c = 280.658
+    p = 8.3145 * T / v * (1 + c / (v - b)) - a / v**2
+
+    return p # MPa
+
+def kaplun_eqz(v, P):
+    return kaplun_v_p(v) * 1e6 - P
+
+# Young-Laplace (Pa)
+p_kaplun = 2 * 1.2 / Rb
+# molar volume (cm^3/mol)
+v_kaplun = []
+for p in p_kaplun:
+    v_kaplun.append(fsolve(kaplun_eqz, 10, args=(p))[0])
+# xe/vac ratio (at 400 K)
+phi_kaplun = [11.86 / i for i in v_kaplun]
+# number density (1/m^3)
+n_kaplun = [i * 5e28 for i in phi_kaplun]
 
 ### Beeler 2023 EOS
 def b2023_v_p(v):
@@ -154,19 +179,22 @@ plt.figure(figsize=(5, 4))
 
 plt.plot(Rb * 1e9, n_vdw,
          marker='v', ls=':',
-         label=r'van der Waals (Y-L, $\gamma = 1.55$)')
+         label=r'van der Waals ($\gamma = 1.55$)')
 plt.plot(Rb * 1e9, n_ronchi,
          marker='s', ls='-.',
-         label=r'Ronchi (Y-L, $\gamma = 1.55$)')
+         label=r'Ronchi ($\gamma = 1.55$)')
 plt.plot(Rb * 1e9, n_b2020,
          marker='o', ls='-.',
-         label=r'Beeler 2020 (mod. Y-L, $\gamma = 1.2$)')
+         label=r'2020 Virial (mY-L, $\gamma = 1.2$)')
+plt.plot(Rb * 1e9, n_kaplun,
+         marker='o', ls='-.',
+         label=r'2020 Kaplun ($\gamma = 1.55$)')
 plt.plot(Rb * 1e9, n_b2023,
          marker='^', ls='--',
-         label=r'Beeler 2023 (Y-L, $\gamma = 1.55$)')
+         label=r'2023 Virial ($\gamma = 1.55$)')
 plt.plot(r_md, n_md,
          marker='o', ls='-',
-         label='MD simulations (ADP 2023)')
+         label='MD (ADP 2023)')
 
 plt.xlabel(r'Bubble radius, $R_b$ (nm)')
 # plt.ylabel(r'Molar volume, $v$ (cm$^3$/mol)')
