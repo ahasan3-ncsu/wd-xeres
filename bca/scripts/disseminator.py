@@ -19,16 +19,16 @@ def irun(idict, ipath):
     return True
 
 def main():
-    # equilibrium number density for a radius (subject to change)
+    # equilibrium number density for a radius (vdW EOS)
     n_eq = {
-        1: 0.00905,
-        2: 0.00908,
-        4: 0.01009,
-        8: 0.00868,
-        16: 0.00662,
-        32: 0.00479,
-        64: 0.00327,
-        128: 0.00209
+        1: 0.01152,
+        2: 0.01129,
+        4: 0.01086,
+        8: 0.01008,
+        16: 0.00881,
+        32: 0.00704,
+        64: 0.00503,
+        128: 0.00320
     }
 
     # energy discretization
