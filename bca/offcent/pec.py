@@ -36,7 +36,7 @@ def plotter(jpath):
 
     plt.legend()
     plt.tight_layout()
-    plt.show()
+    plt.savefig(f'chi_{jpath.split('/')[-1][:-5]}.pdf')
 
 def main():
     data_dir = 'data'

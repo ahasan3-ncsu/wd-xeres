@@ -46,12 +46,13 @@ def get_chi(L, splines, energy, l):
     # convert to MeV
     en_mev = energy / 1e6
 
-    lchi = []
+    Lchi = []
     for spl in splines:
-        lchi.append(max(0, spl(en_mev)))
+        Lchi.append(max(0, spl(en_mev)))
 
-    lspline = PchipInterpolator(L, lchi)
-    return lspline(l)
+    # lspline = PchipInterpolator(L, Lchi)
+    # return lspline(l)
+    return np.interp(l, L, Lchi)
 
 def get_grid_points(x, w, alpha, D, T):
     cos_a = np.cos(alpha)

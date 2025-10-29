@@ -1,33 +1,25 @@
 Now what?
 
-plan of action
-1. which point is better for exponential fit
-2. run a fine energy grid for 8 nm and 64 nm (1k each)
+Discretized E and l.
+For smaller bubbles, we probably need more l values.
+Each radius might need a different set of l.
+Anything to get a smooth profile.
 
-the critical point is at R_b
-linear before that
-exponential after that
-to get the exponential decay, what point should we get?
-the point at 1/3rd the way or 1/2 the way
-let's make a fit to see which point is better
+The issue is that nel_mesh has an impact.
+This needs convergence testing.
+It's not gonna be fast but whatever!
 
-how does the trend change with energy?
+Can we use a simple interpolator for l?
+Need to make a plot to see how smooth it looks.
+Making a lot of PchipInterpolators is expensive.
 
-is it better to just get grid point values?
-after all, that's all that matters
+Finally, the matter of equilibrium pressure.
+I need to find the number density.
+1 mol = 134 g = 6.022e23 atoms
 
-the major problem is the energy dependence
+What's the density of Xenon in solid and liquid state?
+solid: 3.64 g/cc = 3.64e6 g/m^3 = 1.63e28 atoms/m^3
+liquid: 3.1 g/cc = 3.1e6 g/m^3 = 1.39e28 atoms/m^3
+gas: 0.005366 g/cc = 5366 g/m^3 = 2.41e25 atoms/m^3
 
-should we look into the total number of recoils
-what if the left tapering is because of bubble volume
-let's look into it; there might be some clues
-
-only Y (see reason below)
-all radii
-2 different l (needs justification)
-how many energies? (this is the issue)
-
-there might be patterns
-like 20 MeV and 100 MeV are very similar
-hold on a second
-I have to do Y then, not I. 102 vs 75 MeV.
+I guess 1.39e28 is the limit for gas.
