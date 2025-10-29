@@ -53,7 +53,7 @@ def get_chi(P, en, rad, ion):
     return rxe, chi
 
 def main():
-    radii = [8, 64]
+    radii = [2, 8, 64]
 
     Y_en = [1, 20]
     I_en = [1, 20]

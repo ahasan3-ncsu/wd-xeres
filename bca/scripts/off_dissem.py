@@ -12,7 +12,7 @@ def irun(idict, ipath):
     shutil.move(ifile, ipath)
 
     # run sim, get xe_res number
-    subprocess.run(['python', 'runner.py', ipath, '2'])
+    subprocess.run(['python', 'runner.py', ipath, '3'])
     # aggregate xe_res, test convergence
     subprocess.run(['python', 'agg.py', ipath])
 
@@ -34,7 +34,7 @@ def main():
     Y_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 80, 102]
     I_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 75]
 
-    radii = [8, 16, 32, 64, 128]
+    radii = [1, 2, 4, 8, 16, 32, 64, 128]
 
     arg_dict = {'filename': 'ballbox.toml'}
 

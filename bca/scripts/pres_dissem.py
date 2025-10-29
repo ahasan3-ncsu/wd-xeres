@@ -12,7 +12,7 @@ def irun(idict, ipath):
     shutil.move(ifile, ipath)
 
     # run sim, get xe_res number
-    subprocess.run(['python', 'runner.py', ipath, '2'])
+    subprocess.run(['python', 'runner.py', ipath, '3'])
     # aggregate xe_res, test convergence
     subprocess.run(['python', 'agg.py', ipath])
 
@@ -35,8 +35,8 @@ def main():
     Y_en = [1, 20]
     I_en = [1, 20]
 
-    # only intergranular for now
-    radii = [8, 64]
+    # select few are needed
+    radii = [2, 8, 64]
 
     # different pressures
     pres_mult = [0.8, 1.2, 1.4]
