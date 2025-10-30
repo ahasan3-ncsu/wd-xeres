@@ -1,8 +1,14 @@
 import matplotlib.pyplot as plt
 
-rad = [8, 16, 32, 64, 128]
-bY = [5.8e-25, 1.8e-25, 5.9e-26, 2.3e-26, 1.2e-26]
-bI = [7.5e-25, 2.4e-25, 8.0e-26, 3.4e-26, 1.8e-26]
+rad = [1, 2, 4, 8, 16, 32, 64, 128]
+bY = [
+    2.98e-23, 7.97e-24, 2.20e-24, 5.49e-25,
+    1.43e-25, 4.18e-26, 1.53e-26, 8.33e-27
+]
+bI = [
+    3.28e-23, 1.04e-23, 2.70e-24, 7.67e-25,
+    2.09e-25, 5.86e-26, 2.34e-26, 1.36e-27
+]
 b = [y + i for y, i in zip(bY, bI)]
 
 def bdart(r):
@@ -27,8 +33,8 @@ plt.ylabel(r'$b$ / $\dot{F}$ (m$^3$/fsn)')
 # plt.xscale('log')
 plt.yscale('log')
 
-plt.xlim([0, 140])
-plt.ylim([1e-27, 1e-23])
+# plt.xlim([0, 140])
+# plt.ylim([1e-27, 1e-23])
 
 plt.legend()
 plt.tight_layout()
