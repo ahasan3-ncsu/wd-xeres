@@ -1,6 +1,6 @@
 {
-    "sim_runs": 2,
-    "xe_recoils": 1387,
-    "xe_outside": 159,
+    "sim_runs": 5,
+    "xe_recoils": 5231,
+    "xe_outside": 401,
     "re-solved": 3
 }
