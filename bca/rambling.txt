@@ -1,25 +1,34 @@
 Now what?
 
-Discretized E and l.
-For smaller bubbles, we probably need more l values.
-Each radius might need a different set of l.
-Anything to get a smooth profile.
+For the offcent sims, add one more run at R_b.
+Also, why not run at D as well?
+The resolution size needs to be at least R_b/2.
+
+Variable surface mesh size? Why not? :)
+Smaller square inside a bigger square.
+
+junctions: n_parts + 1
+nel for each part: n_parts
+this all goes into mesh_info
+get_grid_points: needs to take low and high
+add_xi: need to add a loop for adding the parts
 
 The issue is that nel_mesh has an impact.
 This needs convergence testing.
-It's not gonna be fast but whatever!
 
-Can we use a simple interpolator for l?
-Need to make a plot to see how smooth it looks.
-Making a lot of PchipInterpolators is expensive.
+2D/nel_mesh is the resolution for the surface mesh.
+We need to play around with delta too.
+
+The pressure graph needs error bars.
+Actually, add error bars wherever possible.
 
 Finally, the matter of equilibrium pressure.
 I need to find the number density.
-1 mol = 134 g = 6.022e23 atoms
+I'm using the van der Waals EOS with gamma=1.55.
 
 What's the density of Xenon in solid and liquid state?
+1 mol = 134 g = 6.022e23 atoms
 solid: 3.64 g/cc = 3.64e6 g/m^3 = 1.63e28 atoms/m^3
 liquid: 3.1 g/cc = 3.1e6 g/m^3 = 1.39e28 atoms/m^3
 gas: 0.005366 g/cc = 5366 g/m^3 = 2.41e25 atoms/m^3
-
 I guess 1.39e28 is the limit for gas.

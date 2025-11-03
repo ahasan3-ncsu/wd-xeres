@@ -44,32 +44,50 @@ def get_chi(E, l, rad, ion):
     return chi
 
 def main():
-    radii = [1, 2, 4, 8, 16, 32, 64, 128]
-
     Y_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 80, 102]
     I_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 75]
 
+    radii = [1, 2, 4, 8, 16, 32, 64, 128]
+
+    # sync with off_dissem
+    L = {
+        1: [63, 126, 189, 252, 505, 757],
+        2: [63, 127, 191, 255, 510, 765],
+        4: [65, 130, 195, 260, 520, 780],
+        8: [67, 135, 202, 270, 540, 810],
+        16: [145, 290, 580, 870],
+        32: [330, 495, 660, 990],
+        64: [410, 820, 1230],
+        128: [570, 1140, 1710]
+    }
+
     for rad in radii:
-        D = rad * 10 + 1000
-        L = [0] + [i * D // 4 for i in range(1, 4)]
+        # prepend 0 to get headon data when looping
+        Lloc = [0] + L[rad]
 
         # yttrium
         Y_chi = []
-        for l in L:
+        for l in Lloc:
             Y_chi.append(get_chi(Y_en, l, rad, 'Y'))
 
-        Y_chi.append([0.0] * len(Y_en))
-        Y_dict = {'L': L + [D], 'E': Y_en, 'chi': Y_chi}
+        Y_dict = {
+            'L': Lloc,
+            'E': Y_en,
+            'chi': Y_chi
+        }
         with open(f'data/{rad}nm_Y.json', 'w') as f:
             json.dump(Y_dict, f, indent=4)
 
         # iodine
         I_chi = []
-        for l in L:
+        for l in Lloc:
             I_chi.append(get_chi(I_en, l, rad, 'I'))
 
-        I_chi.append([0.0] * len(I_en))
-        I_dict = {'L': L + [D], 'E': I_en, 'chi': I_chi}
+        I_dict = {
+            'L': Lloc,
+            'E': I_en,
+            'chi': I_chi
+        }
         with open(f'data/{rad}nm_I.json', 'w') as f:
             json.dump(I_dict, f, indent=4)
 

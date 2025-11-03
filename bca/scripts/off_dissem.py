@@ -36,19 +36,27 @@ def main():
 
     radii = [1, 2, 4, 8, 16, 32, 64, 128]
 
+    L = {
+        1: [63, 126, 189, 252, 505, 757],
+        2: [63, 127, 191, 255, 510, 765],
+        4: [65, 130, 195, 260, 520, 780],
+        8: [67, 135, 202, 270, 540, 810],
+        16: [145, 290, 580, 870],
+        32: [330, 495, 660, 990],
+        64: [410, 820, 1230],
+        128: [570, 1140, 1710]
+    }
+
     arg_dict = {'filename': 'ballbox.toml'}
 
     for rad in radii:
-        D = rad * 10 + 1000
-        L = [i * D // 4 for i in range(1, 4)]
-
         arg_dict['sphere'] = [rad * 10, n_eq[rad]]
 
         dirpath = f'{rad}nm'
         os.makedirs(dirpath, exist_ok=True)
 
         for y_e in Y_en:
-            for l in L:
+            for l in L[rad]:
                 subdirpath = f'{rad}nm/Y_{y_e:.1f}MeV/l{l/10:.0f}nm'
                 if os.path.exists(subdirpath):
                     continue
@@ -59,7 +67,7 @@ def main():
                 irun(arg_dict, subdirpath)
 
         for i_e in I_en:
-            for l in L:
+            for l in L[rad]:
                 subdirpath = f'{rad}nm/I_{i_e:.1f}MeV/l{l/10:.0f}nm'
                 if os.path.exists(subdirpath):
                     continue
