@@ -54,20 +54,25 @@ def get_chi(L, splines, energy, l):
     # return lspline(l)
     return np.interp(l, L, Lchi)
 
-def get_grid_points(x, w, alpha, D, T):
+def get_grid_points(x, w, alpha, D, hi, lo, T):
     cos_a = np.cos(alpha)
     sin_a = np.sin(alpha)
 
-    xp, wp = x  - D * cos_a, w  - D * sin_a
-    p1, q1 = xp - D * sin_a, wp + D * cos_a
-    p2, q2 = xp + D * sin_a, wp - D * cos_a
+    xp, wp = x  - D  * cos_a, w  - D  * sin_a
+    p1, q1 = xp - hi * sin_a, wp + hi * cos_a
+    p2, q2 = xp + hi * sin_a, wp - hi * cos_a
+    f1, f2 = (hi - lo) / (2 * hi), (hi + lo) / (2 * hi)
 
     points = []
     for t1 in T:
         p = p1 + t1 * (p2 - p1)
         q = q1 + t1 * (q2 - q1)
         for t2 in T:
-            z = -D + t2 * (2 * D)
+            # discard points outside the region
+            if f1 < t1 and t1 < f2 and f1 < t2 and t2 < f2:
+                continue
+
+            z = -hi + t2 * (2 * hi)
             # point in question: (p, q, z)
             # central point: (xp, wp, 0)
             _w = (q**2 + z**2) ** 0.5
@@ -80,12 +85,27 @@ def add_xi(grid_data, grid_info, L, splines, mesh_info):
     cell_size, num_rows, num_cols = (
         grid_info['cell_size'], grid_info['num_rows'], grid_info['num_cols']
     )
-    Rb, delta, nel_mesh = (
-        mesh_info['Rb'], mesh_info['delta'], mesh_info['nel_mesh']
+
+    Rb, delta, n_regions, reg_bounds, reg_divs = (
+        mesh_info['Rb'], mesh_info['delta'],
+        mesh_info['n_regions'], mesh_info['reg_bounds'], mesh_info['reg_divs']
     )
+    assert len(reg_bounds) == (n_regions + 1)
+    assert len(reg_divs) == n_regions
+
     D = Rb + delta
-    T = np.linspace(0, 1, nel_mesh+1)
-    T = (T[1:] + T[:-1]) / 2
+
+    for r in range(n_regions):
+        hi, lo = reg_bounds[r], reg_bounds[r+1]
+        s = 2 * hi / reg_divs[r]
+        k = 2 * lo / s
+        assert abs(round(k) * s - 2 * lo) < 1e-6
+
+    bigT = []
+    for divs in reg_divs:
+        T = np.linspace(0, 1, divs+1)
+        T = (T[1:] + T[:-1]) / 2
+        bigT.append(T)
 
     for i in range(num_rows):
         for j in range(num_cols):
@@ -96,26 +116,37 @@ def add_xi(grid_data, grid_info, L, splines, mesh_info):
 
             x, w = i * cell_size, j * cell_size
             alpha = grid_data[i][j]['angles']
-            points = get_grid_points(x, w, alpha, D, T)
+            cos_a = np.cos(alpha)
 
             sum = 0.0
-            for p in points:
-                xp, wp, lp = p
-                ip, jp = max(0, int(xp / cell_size)), int(wp / cell_size)
-                # better corner case impl. needed
-                # for now, remove elements with notably different angles
-                if abs(grid_data[ip][jp]['angles'] - alpha) > 0.8:
-                    continue
 
-                sum += (
-                    grid_data[ip][jp]['probability']
-                    * get_chi(
-                            L, splines,
-                            grid_data[ip][jp]['energies'], lp
-                        )
-                )
+            for r in range(n_regions):
+                hi, lo = reg_bounds[r], reg_bounds[r+1]
+                s = 2 * hi / reg_divs[r]
 
-            sum *= (2 * D / nel_mesh)**2 / np.cos(alpha)
+                reg_sum = 0.0
+
+                points = get_grid_points(x, w, alpha, D, hi, lo, bigT[r])
+                for p in points:
+                    xp, wp, lp = p
+                    ip, jp = max(0, int(xp / cell_size)), int(wp / cell_size)
+                    # better corner case impl. needed
+                    # for now, remove elements with notably different angles
+                    if abs(grid_data[ip][jp]['angles'] - alpha) > 0.8:
+                        continue
+
+                    reg_sum += (
+                        grid_data[ip][jp]['probability']
+                        * get_chi(
+                                L, splines,
+                                grid_data[ip][jp]['energies'], lp
+                            )
+                    )
+
+                reg_sum *= s**2 / cos_a
+
+                sum += reg_sum
+
             grid_data[i][j]['xi'] = sum
 
     # ff origin cannot be inside the bubble
@@ -173,9 +204,11 @@ def main():
         'num_cols' : 100,
     }
     mesh_info = {
-        'Rb'      : int(rad) * 10,
-        'delta'   : 1000,
-        'nel_mesh': 5,
+        'Rb'        : int(rad) * 10,
+        'delta'     : 1000,
+        'n_regions' : 2,
+        'reg_bounds': [1010, 202, 0],
+        'reg_divs'  : [5, 3],
     }
 
     L, splines = pchip_splines(json_file)

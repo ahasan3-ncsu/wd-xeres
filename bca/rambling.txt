@@ -1,23 +1,14 @@
 Now what?
 
-For the offcent sims, add one more run at R_b.
-Also, why not run at D as well?
-The resolution size needs to be at least R_b/2.
+The mesh resolution should be variable.
+Maybe it should be R_b/2 up to 4*R_b.
+For 4*R_b to D, it can be 250 angstrom.
+8*8 + 4*4 = 80 points
+This needs to be tried and tested.
+Because it'll go into the paper as well.
 
-Variable surface mesh size? Why not? :)
-Smaller square inside a bigger square.
-
-junctions: n_parts + 1
-nel for each part: n_parts
-this all goes into mesh_info
-get_grid_points: needs to take low and high
-add_xi: need to add a loop for adding the parts
-
-The issue is that nel_mesh has an impact.
-This needs convergence testing.
-
-2D/nel_mesh is the resolution for the surface mesh.
-We need to play around with delta too.
+Smaller square inside a bigger square
+Top to bottom
 
 The pressure graph needs error bars.
 Actually, add error bars wherever possible.
