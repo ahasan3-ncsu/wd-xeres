@@ -187,6 +187,53 @@ def plot_prop(grid_data, prop, pnorm):
     plt.colorbar()
     plt.show()
 
+def get_mesh_regions(Rb):
+    # this was becoming unncessarily more complex
+    data = {
+        10: (
+            5,
+            [0, 20, 60, 180, 360, 1080],
+            [8, 3, 3, 4, 3]
+        ),
+        20: (
+            4,
+            [0, 40, 120, 360, 1080],
+            [8, 3, 3, 3]
+        ),
+        40: (
+            3,
+            [0, 90, 270, 1080],
+            [9, 3, 8]
+        ),
+        80: (
+            3,
+            [0, 180, 540, 1080],
+            [9, 3, 4]
+        ),
+        160: (
+            3,
+            [0, 1160/3, 1160],
+            [9, 3]
+        ),
+        320: (
+            2,
+            [0, 660, 1320],
+            [8, 4]
+        ),
+        640: (
+            1,
+            [0, 1640],
+            [10]
+        ),
+        1280: (
+            1,
+            [0, 2280],
+            [12]
+        ),
+    }
+
+    return data[Rb]
+
 def main():
     rad = sys.argv[1]
     ion = sys.argv[2]
@@ -203,12 +250,18 @@ def main():
         'num_rows' : 180,
         'num_cols' : 100,
     }
+
+    Rb = int(rad) * 10
+    delta = 1000
+    n_regs, bounds, divs = get_mesh_regions(Rb)
+    print(f'{n_regs}\n{bounds}\n{divs}\n')
+
     mesh_info = {
-        'Rb'        : int(rad) * 10,
-        'delta'     : 1000,
-        'n_regions' : 2,
-        'reg_bounds': [1010, 202, 0],
-        'reg_divs'  : [5, 3],
+        'Rb'        : Rb,
+        'delta'     : delta,
+        'n_regions' : n_regs,
+        'reg_bounds': bounds[::-1],
+        'reg_divs'  : divs[::-1],
     }
 
     L, splines = pchip_splines(json_file)
