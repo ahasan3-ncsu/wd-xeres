@@ -188,48 +188,16 @@ def plot_prop(grid_data, prop, pnorm):
     plt.show()
 
 def get_mesh_regions(Rb):
-    # this was becoming unncessarily more complex
+    # Rb/2 resolution up to 2*Rb; then min(Rb/2, 400)
     data = {
-        10: (
-            5,
-            [0, 20, 60, 180, 360, 1080],
-            [8, 3, 3, 4, 3]
-        ),
-        20: (
-            4,
-            [0, 40, 120, 360, 1080],
-            [8, 3, 3, 3]
-        ),
-        40: (
-            3,
-            [0, 90, 270, 1080],
-            [9, 3, 8]
-        ),
-        80: (
-            3,
-            [0, 180, 540, 1080],
-            [9, 3, 4]
-        ),
-        160: (
-            3,
-            [0, 1160/3, 1160],
-            [9, 3]
-        ),
-        320: (
-            2,
-            [0, 660, 1320],
-            [8, 4]
-        ),
-        640: (
-            1,
-            [0, 1640],
-            [10]
-        ),
-        1280: (
-            1,
-            [0, 2280],
-            [12]
-        ),
+        10: (5, [0, 20, 60, 180, 360, 1080], [8, 3, 3, 4, 3]),
+        20: (4, [0, 40, 120, 360, 1080], [8, 3, 3, 3]),
+        40: (3, [0, 90, 270, 1080], [9, 3, 8]),
+        80: (3, [0, 180, 540, 1080], [9, 3, 4]),
+        160: (2, [0, 1160/3, 1160], [9, 3]),
+        320: (2, [0, 660, 1320], [8, 4]),
+        640: (1, [0, 1640], [10]),
+        1280: (1, [0, 2280], [12]),
     }
 
     return data[Rb]
@@ -274,8 +242,8 @@ def main():
     # plot_prop(grid, 'probability', SymLogNorm(linthresh=1e-11))
     # plot_prop(grid, 'energies', 'linear')
 
-    plot_prop(grid, 'xi', SymLogNorm(linthresh=1e-12))
-    plot_prop(grid, 'db', SymLogNorm(linthresh=1e-2))
+    # plot_prop(grid, 'xi', SymLogNorm(linthresh=1e-12))
+    # plot_prop(grid, 'db', SymLogNorm(linthresh=1e-2))
 
 if __name__ == '__main__':
     main()
