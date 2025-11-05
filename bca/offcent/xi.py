@@ -187,20 +187,53 @@ def plot_prop(grid_data, prop, pnorm):
     plt.colorbar()
     plt.show()
 
-def get_mesh_regions(Rb):
-    # Rb/2 resolution up to 2*Rb; then min(Rb/2, 400)
-    data = {
-        10: (5, [0, 20, 60, 180, 360, 1080], [8, 3, 3, 4, 3]),
-        20: (4, [0, 40, 120, 360, 1080], [8, 3, 3, 3]),
-        40: (3, [0, 90, 270, 1080], [9, 3, 8]),
-        80: (3, [0, 180, 540, 1080], [9, 3, 4]),
-        160: (2, [0, 1160/3, 1160], [9, 3]),
-        320: (2, [0, 660, 1320], [8, 4]),
-        640: (1, [0, 1640], [10]),
-        1280: (1, [0, 2280], [12]),
-    }
+def get_mesh_regions(Rb, delta):
+    hi = Rb + delta
+    outer_res = 500 / 2**0.5
+    inner_res = min(Rb / 2, outer_res)
+    cutoff = 2 * Rb
 
-    return data[Rb]
+    n_regs = 0
+    bounds = [hi]
+    divs = []
+
+    while hi > cutoff:
+        # ensure at most outer_res
+        div = 3
+        while (2 * hi / div) > outer_res:
+            div += 1
+
+        # slowly go down to inner_res if current res doesn't work
+        k = 0
+        while (2 * hi / div) > inner_res:
+            s = 2 * hi / div
+
+            k = 0
+            while (hi - k * s) >= cutoff:
+                k += 1
+            k -= 1
+
+            if k > 0:
+                break
+            else:
+                div += 1
+
+        if k > 0:
+            n_regs += 1
+            lo = hi - k * s
+            bounds.append(lo)
+            divs.append(div)
+            hi = lo
+        else:
+            # time to switch to inner region
+            break
+
+    # inner region
+    n_regs += 1
+    bounds.append(0)
+    divs.append(int(np.ceil(2 * hi / inner_res)))
+
+    return n_regs, bounds, divs
 
 def main():
     rad = sys.argv[1]
@@ -221,15 +254,15 @@ def main():
 
     Rb = int(rad) * 10
     delta = 1000
-    n_regs, bounds, divs = get_mesh_regions(Rb)
+    n_regs, bounds, divs = get_mesh_regions(Rb, delta)
     print(f'{n_regs}\n{bounds}\n{divs}\n')
 
     mesh_info = {
         'Rb'        : Rb,
         'delta'     : delta,
         'n_regions' : n_regs,
-        'reg_bounds': bounds[::-1],
-        'reg_divs'  : divs[::-1],
+        'reg_bounds': bounds,
+        'reg_divs'  : divs,
     }
 
     L, splines = pchip_splines(json_file)
