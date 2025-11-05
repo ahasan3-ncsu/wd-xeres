@@ -129,7 +129,8 @@ def add_xi(grid_data, grid_info, L, splines, mesh_info):
                 points = get_grid_points(x, w, alpha, D, hi, lo, bigT[r])
                 for p in points:
                     xp, wp, lp = p
-                    ip, jp = max(0, int(xp / cell_size)), int(wp / cell_size)
+                    ip = np.clip(int(xp / cell_size), 0, num_rows - 1)
+                    jp = np.clip(int(wp / cell_size), 0, num_cols - 1)
                     # better corner case impl. needed
                     # for now, remove elements with notably different angles
                     if abs(grid_data[ip][jp]['angles'] - alpha) > 0.8:
