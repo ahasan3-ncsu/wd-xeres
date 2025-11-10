@@ -1,54 +1,42 @@
 import sys
-import tomllib
+import json
 import numpy as np
 import matplotlib.pyplot as plt
 
-def create_vis(eloss_file, toml_file, which_ion):
-    jar = np.loadtxt(eloss_file, delimiter=',')
+def create_vis(json_file, which_ion):
+    with open(json_file, 'r') as f:
+        jar = json.load(f)
 
-    x = jar[:, 4]
-    E_nuke = jar[:, 2]
+    num_ions = jar['num_ions']
+    bin_x = np.array(jar['bin_x'])
+    nuke_loss = np.array(jar['nuke'])
 
-    del jar
+    first_zero = 0
+    for i, v in enumerate(nuke_loss):
+        if v == 0.0:
+            first_zero = i
+            break
 
-    bin_width = 5000
-    x_min, x_max = x.min(), x.max()
-
-    bins = np.arange(x_min, x_max + bin_width, bin_width)
-    bin_centers = (bins[:-1] + bins[1:]) / 2
-
-    nuke_loss_per_bin = np.zeros(len(bin_centers))
-
-    x_bin_ind = np.digitize(x, bins)
-    np.add.at(nuke_loss_per_bin, x_bin_ind - 1, E_nuke)
-    cum_nuke_loss = np.cumsum(nuke_loss_per_bin)
-
-    with open(toml_file, 'rb') as f:
-        foo = tomllib.load(f)
-
-    if which_ion == 'Y':
-        num_ions = foo['particle_parameters']['N'][0]
-    elif which_ion == 'I':
-        num_ions = foo['particle_parameters']['N'][1]
-    else:
-        raise ValueError('Wrong ion type!')
+    bin_x = bin_x[:first_zero+1]
+    nuke_loss = nuke_loss[:first_zero+1]
+    cum_nuke_loss = np.cumsum(nuke_loss)
 
     plt.figure(figsize=(5, 4))
 
     plt.plot(
-        bin_centers / 1e4, # ang -> micron
-        nuke_loss_per_bin / num_ions / 1e6, # eV -> MeV
+        bin_x / 1e4, # ang -> micron
+        nuke_loss / num_ions / 1e6, # eV -> MeV
         label='Local',
-        marker='o',
-        markersize=3,
+        # marker='o',
+        # markersize=3,
         color='red'
     )
     plt.plot(
-        bin_centers / 1e4, # ang -> micron
+        bin_x / 1e4, # ang -> micron
         cum_nuke_loss / num_ions / 1e6, # eV -> MeV
         label='Cumulative',
-        marker='s',
-        markersize=3,
+        # marker='s',
+        # markersize=3,
         ls='-.',
         color='peru'
     )
@@ -62,15 +50,14 @@ def create_vis(eloss_file, toml_file, which_ion):
     plt.ylabel(r'Nuclear energy loss (MeV)')
 
     plt.legend()
-    plt.savefig('/'.join(eloss_file.split('/')[:-1] + [f'{which_ion}_nuke_loss.pdf']))
+    plt.savefig('/'.join(json_file.split('/')[:-1] + [f'{which_ion}_nuke_loss.pdf']))
 
 def main():
     file_root = sys.argv[1]
-    eloss_file = file_root + '_energy_loss.output'
-    toml_file = file_root + '.toml'
+    json_file = file_root + '_eloss_bin.json'
     which_ion = sys.argv[2]
 
-    create_vis(eloss_file, toml_file, which_ion)
+    create_vis(json_file, which_ion)
 
 if __name__ == '__main__':
     main()

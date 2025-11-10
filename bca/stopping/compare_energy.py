@@ -1,30 +1,31 @@
 import sys
-import numpy as np
+import json
 
-def calc(eloss_file):
-    jar = np.loadtxt(eloss_file, delimiter=',')
+def calc(json_file):
+    with open(json_file, 'r') as f:
+        jar = json.load(f)
 
-    E_nuke = jar[:, 2]
-    E_elec = jar[:, 3]
+    num_ions = jar['num_ions']
+    nuke = jar['nuke']
+    elec = jar['elec']
 
-    del jar
+    nuke_loss = sum(nuke) / num_ions
+    elec_loss = sum(elec) / num_ions
+    total_loss = nuke_loss + elec_loss
 
-    nuke = E_nuke.sum()
-    elec = E_elec.sum()
+    print('nuke_loss: ', nuke_loss)
+    print('elec_loss: ', elec_loss)
 
-    print('Nuke: ', nuke)
-    print('Elec: ', elec)
-
-    print('Total: ', nuke + elec)
-    print('Nuke ratio: ', nuke / (nuke + elec))
-    print('Elec ratio: ', elec / (nuke + elec))
+    print('Total: ', total_loss)
+    print('Nuke ratio: ', nuke_loss / total_loss)
+    print('Elec ratio: ', elec_loss / total_loss)
 
 def main():
     file_root = sys.argv[1]
-    eloss_file = file_root + '_energy_loss.output'
-    print(eloss_file)
+    json_file = file_root + '_eloss_bin.json'
+    print(json_file)
 
-    calc(eloss_file)
+    calc(json_file)
 
 if __name__ == '__main__':
     main()

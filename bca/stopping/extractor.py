@@ -3,7 +3,6 @@ import sys
 import json
 import tomllib
 import numpy as np
-import matplotlib.pyplot as plt
 
 def extract(eloss_file, json_file, toml_file, which_ion):
     jar = np.loadtxt(eloss_file, delimiter=',')
@@ -44,6 +43,7 @@ def extract(eloss_file, json_file, toml_file, which_ion):
     else:
         data = {
             'num_ions': 0,
+            'bin_x':    bin_centers.tolist(),
             'nuke':     [0.0] * num_bins,
             'elec':     [0.0] * num_bins
         }
