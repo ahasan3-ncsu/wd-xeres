@@ -13,6 +13,12 @@ def create_vis(json_file, which_ion):
     nuke_loss = np.array(jar['nuke'])
     elec_loss = np.array(jar['elec'])
 
+    k = 3
+    for i in range(len(bin_x)//k):
+        bin_x[i] = sum([bin_x[k*i+j] for j in range(k)]) / k
+        nuke_loss[i] = sum([nuke_loss[k*i+j] for j in range(k)]) / k
+        elec_loss[i] = sum([elec_loss[k*i+j] for j in range(k)]) / k
+
     first_zero = 0
     for i, v in enumerate(nuke_loss):
         if v == 0.0 and elec_loss[i] == 0.0:
