@@ -76,7 +76,7 @@ t_velocities = np.array([
 ])
 
 # plotting
-fig = plt.figure()
+fig = plt.figure(figsize=(8, 4))
 
 ax1 = fig.add_subplot(121, projection='3d')
 ax1.scatter(
@@ -111,7 +111,8 @@ ax2.set_title(r"Transformed $(\mathbf{r_i'}, \mathbf{v_i'})$")
 ax2.set_xlim([-0.4, 0.4])
 ax2.set_ylim([-0.4, 0.4])
 ax2.set_zlim([-0.4, 0.4])
-ax2.view_init(elev=10, azim=270)
+ax2.view_init(elev=10, azim=90)
 ax2.axis('off')
 
-plt.show()
+plt.tight_layout()
+plt.savefig('rotation.pdf')

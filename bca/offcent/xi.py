@@ -174,20 +174,6 @@ def add_db(grid_data, grid_info):
     print(b * 1e-30) # b/Fdot; angstrom^3 -> m^3
     return grid_data
 
-def plot_prop(grid_data, prop, pnorm):
-    prop_data = [
-        [col[prop] for col in row]
-        for row in grid_data
-    ]
-    t_data = np.array(prop_data).T
-
-    plt.imshow(t_data,
-               cmap='nipy_spectral',
-               origin='lower',
-               norm=pnorm)
-    plt.colorbar()
-    plt.show()
-
 def get_mesh_regions(Rb, delta):
     hi = Rb + delta
     outer_res = 500 / 2**0.5
@@ -242,6 +228,7 @@ def main():
 
     json_file = f'data/{rad}nm_{ion}.json'
     grid_file = f'data/{ion}_surface_grid.output'
+    save_file = f'data/{rad}nm_{ion}_surface_grid.output'
 
     print(json_file)
     print(grid_file)
@@ -273,11 +260,8 @@ def main():
     grid = add_xi(grid, grid_info, L, splines, mesh_info)
     grid = add_db(grid, grid_info)
 
-    # plot_prop(grid, 'probability', SymLogNorm(linthresh=1e-11))
-    # plot_prop(grid, 'energies', 'linear')
-
-    # plot_prop(grid, 'xi', SymLogNorm(linthresh=1e-12))
-    # plot_prop(grid, 'db', SymLogNorm(linthresh=1e-2))
+    with open(save_file, 'wb') as f:
+        pickle.dump(grid, f)
 
 if __name__ == '__main__':
     main()

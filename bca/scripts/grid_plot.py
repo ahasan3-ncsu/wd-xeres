@@ -46,10 +46,13 @@ def plot_grid(grid_file, prop):
         t_data = np.array(ion_data).T
         pnorm = 'linear'
 
+    plt.figure(figsize=(6, 3))
+
     # option 1: imshow
     plt.imshow(t_data,
                cmap='nipy_spectral',
                origin='lower',
+               extent=(0, 9, 0, 5),
                norm=pnorm)
 
     # option 2: pcolormesh
@@ -60,8 +63,12 @@ def plot_grid(grid_file, prop):
     #                cmap='nipy_spectral',
     #                norm=pnorm)
 
+    plt.xlabel(r'x ($\mu$m)')
+    plt.ylabel(r'w ($\mu$m)')
+
     plt.colorbar()
-    plt.show()
+    plt.tight_layout()
+    plt.savefig(f'{grid_file[-21]}_{prop}.pdf')
 
 def main():
     file_root = sys.argv[1]
