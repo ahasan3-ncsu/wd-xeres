@@ -2,5 +2,7 @@
     "sim_runs": 5,
     "xe_recoils": 561987,
     "xe_outside": 28363,
-    "re-solved": 513
+    "re-solved": 513,
+    "mean": 102.6,
+    "stdev": 18.76965636339675
 }

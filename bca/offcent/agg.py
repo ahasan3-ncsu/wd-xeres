@@ -2,6 +2,7 @@ import os
 import sys
 import copy
 import json
+from statistics import mean, stdev
 
 def get_sim_dir(dirpath):
     simpath = dirpath + '/run_'
@@ -15,10 +16,14 @@ def process_output(out_file, data):
     with open(out_file, 'r') as f:
         tmp = f.readline()
         data['xe_recoils'] += int(tmp.split()[-1])
+
         tmp = f.readline()
         data['xe_outside'] += int(tmp.split()[-1])
+
         tmp = f.readline()
-        data['re-solved']  += int(tmp.split()[-1])
+        res = int(tmp.split()[-1])
+        data['re-solved'] += res
+        data['ls_res'].append(res)
 
     return True
 
@@ -42,7 +47,8 @@ def main():
         'sim_runs': 0,
         'xe_recoils': 0,
         'xe_outside': 0,
-        're-solved': 0
+        're-solved': 0,
+        'ls_res': []
     }
     new_data = copy.deepcopy(old_data)
 
@@ -61,6 +67,10 @@ def main():
         print('DIFF: ', diff)
 
         old_data = copy.deepcopy(new_data)
+
+    new_data['mean'] = mean(new_data['ls_res'])
+    new_data['stdev'] = stdev(new_data['ls_res'])
+    del new_data['ls_res']
 
     with open(os.path.join(dirpath, 'xe_res.json'), 'w') as f:
         json.dump(new_data, f, indent=4)
