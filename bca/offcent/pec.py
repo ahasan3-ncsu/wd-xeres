@@ -16,14 +16,16 @@ def plotter(jpath):
     L = foo['L']
     E = foo['E']
     chi = foo['chi']
+    sd = foo['sd']
 
     for i, l in enumerate(L):
         mark = next(markers)
         tint = next(tints)
         lsty = next(lstyles)
 
-        plt.plot(
-            E, chi[i],
+        plt.errorbar(
+            E, chi[i], [2 * x for x in sd[i]],
+            capsize=3,
             marker=mark,
             color=plt.cm.jet(tint),
             ls=lsty,

@@ -22,6 +22,7 @@ def total_xe(rad):
 
 def get_chi(E, l, rad, ion):
     chi = []
+    sd = []
 
     for en in E:
         if l:
@@ -35,13 +36,15 @@ def get_chi(E, l, rad, ion):
         with open(os.path.join(subdirpath, 'xe_res.json')) as f:
             foo = json.load(f)
 
-        chi.append(float(foo['re-solved']) / float(foo['sim_runs']))
+        chi.append(float(foo['mean']))
+        sd.append(float(foo['stdev']))
 
     nxe = total_xe(rad * 10)
     print(nxe)
     chi = [c / 1e3 / nxe for c in chi]
+    sd = [s / 1e3 / nxe for s in sd]
 
-    return chi
+    return chi, sd
 
 def main():
     Y_en = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 80, 102]
@@ -67,26 +70,34 @@ def main():
 
         # yttrium
         Y_chi = []
+        Y_sd = []
         for l in Lloc:
-            Y_chi.append(get_chi(Y_en, l, rad, 'Y'))
+            c, s = get_chi(Y_en, l, rad, 'Y')
+            Y_chi.append(c)
+            Y_sd.append(s)
 
         Y_dict = {
             'L': Lloc,
             'E': Y_en,
-            'chi': Y_chi
+            'chi': Y_chi,
+            'sd': Y_sd
         }
         with open(f'data/{rad}nm_Y.json', 'w') as f:
             json.dump(Y_dict, f, indent=4)
 
         # iodine
         I_chi = []
+        I_sd = []
         for l in Lloc:
-            I_chi.append(get_chi(I_en, l, rad, 'I'))
+            c, s = get_chi(I_en, l, rad, 'I')
+            I_chi.append(c)
+            I_sd.append(s)
 
         I_dict = {
             'L': Lloc,
             'E': I_en,
-            'chi': I_chi
+            'chi': I_chi,
+            'sd': I_sd
         }
         with open(f'data/{rad}nm_I.json', 'w') as f:
             json.dump(I_dict, f, indent=4)
