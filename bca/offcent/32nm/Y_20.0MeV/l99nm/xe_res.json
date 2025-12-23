@@ -1,8 +1,8 @@
 {
-    "sim_runs": 2,
-    "xe_recoils": 36740,
-    "xe_outside": 1105,
-    "re-solved": 14,
-    "mean": 7,
-    "stdev": 0.0
+    "sim_runs": 5,
+    "xe_recoils": 41435,
+    "xe_outside": 1266,
+    "re-solved": 17,
+    "mean": 3.4,
+    "stdev": 3.361547262794322
 }

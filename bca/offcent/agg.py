@@ -54,8 +54,8 @@ def main():
 
     diff = 41.0
 
-    while diff > 1e-3:
-    # for _ in range(5):
+    # while diff > 1e-3:
+    for _ in range(5):
         output_file = 'xe_res.output'
         output_path = os.path.join(next(dir_gen), output_file)
         if not os.path.exists(output_path):
