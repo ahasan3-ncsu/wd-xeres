@@ -34,11 +34,16 @@ def pchip_splines(json_file):
     L = jar['L']
     E = jar['E']
     chi = jar['chi']
+    sd = jar['sd']
 
     splines = []
     for i in range(len(L)):
         # E -> MeV; chi[i] -> fraction
         splines.append(PchipInterpolator(E, chi[i]))
+        # lolim = [max(m - 2 * s, 0) for m, s in zip(chi[i], sd[i])]
+        # splines.append(PchipInterpolator(E, lolim))
+        # uplim = [m + 2 * s for m, s in zip(chi[i], sd[i])]
+        # splines.append(PchipInterpolator(E, uplim))
 
     return L, splines
 

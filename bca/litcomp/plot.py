@@ -6,6 +6,14 @@ bhom_this = [
     8.70e-25, 4.74e-25, 2.67e-25, 1.60e-25,
     1.05e-25, 6.62e-26, 5.16e-26, 4.38e-26
 ]
+lo_err = [
+    7.80e-25, 3.92e-25, 2.00e-25, 9.54e-26,
+    4.91e-26, 2.50e-26, 1.51e-26, 1.05e-26
+]
+up_err = [
+    2.27e-24, 9.71e-25, 3.40e-25, 1.55e-25,
+    6.64e-26, 2.91e-26, 1.66e-26, 1.11e-26
+]
 
 def bdart(r):
     b0 = 2e-24 # m^3
@@ -39,7 +47,8 @@ rad_uzr = list(range(100, 1001, 100))
 
 plt.figure(figsize=(5, 4))
 
-plt.plot(rad_this, bhom_this,
+plt.errorbar(rad_this, bhom_this,
+         [lo_err, up_err], capsize=3,
          marker='o', ls='-',
          label='U-10Mo (This work)')
 plt.plot(rad_this, b_dart,
