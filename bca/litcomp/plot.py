@@ -15,6 +15,11 @@ up_err = [
     6.64e-26, 2.91e-26, 1.66e-26, 1.11e-26
 ]
 
+def pl_fn(x):
+    return 8.35e-25 * x**(-0.919) + 3.46e-26
+
+pl_fit = [pl_fn(x) for x in rad_this]
+
 def bdart(r):
     b0 = 2e-24 # m^3
     if r <= 5: # nm
@@ -49,16 +54,17 @@ plt.figure(figsize=(5, 4))
 
 plt.errorbar(rad_this, bhom_this,
          [lo_err, up_err], capsize=3,
-         marker='o', ls='-',
+         marker='o', ls='', c='teal',
          label='U-10Mo (This work)')
+plt.plot(rad_this, pl_fit, ls='-', c='teal')
 plt.plot(rad_this, b_dart,
-         marker='p', ls='-.',
+         marker='p', ls='-.', c='orange',
          label='U-10Mo (DART)')
 plt.plot(rad_uo2, bhet_uo2,
-         marker='s', ls='--',
+         marker='s', ls='--', c='blue',
          label=r'UO$_2$ (Setyawan et al.)')
 plt.plot(rad_uc, bhom_uc,
-         marker='p', ls=':',
+         marker='v', ls=':', c='red',
          label=r'UC (Matthews et al.)')
 
 plt.xlabel(r'Bubble radius, $R_b$ (nm)')

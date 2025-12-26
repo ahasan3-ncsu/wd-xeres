@@ -1,4 +1,6 @@
+import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
 rad = [1, 2, 4, 8, 16, 32, 64, 128]
 
@@ -13,7 +15,7 @@ bI = [
     6.66e-26, 4.12e-26, 3.23e-26, 2.72e-26
 ]
 b_mean = [y + i for y, i in zip(bY, bI)]
-print(b_mean)
+# print(b_mean)
 
 # lower
 bY = [
@@ -40,28 +42,32 @@ b_upper = [y + i for y, i in zip(bY, bI)]
 # prep for errorbar
 lo_err = [m - l for m, l in zip(b_mean, b_lower)]
 up_err = [u - m for u, m in zip(b_upper, b_mean)]
-print(lo_err)
-print(up_err)
+# print(lo_err)
+# print(up_err)
 
-def bdart(r):
-    b0 = 2e-24 # m^3
-    if r <= 5: # nm
-        G = 1
-    else:
-        G = 1 - ((r - 3e-2) / r)**3
-    return b0 * G
+# do curve fitting here
+def pl_fn(x, a, k, c):
+    return a * x**k + c
 
-dart = [bdart(r) for r in rad]
+b_scaled = [x * 1e26 for x in b_mean]
+popt, pcov = curve_fit(
+    pl_fn, rad, b_scaled,
+    bounds=([0, -np.inf, 0], [np.inf, 0, np.inf])
+)
+# print(popt)
 
 plt.figure(figsize=(5, 4))
 
-plt.errorbar(rad, b_mean,
-         [lo_err, up_err], capsize=3,
-         marker='o', ls='-',
-         label='This work')
-plt.plot(rad, dart,
-         marker='^', ls='--',
-         label='DART')
+plt.errorbar(
+    rad, b_mean,
+    [lo_err, up_err], capsize=3,
+    marker='o', ls='', c='teal'
+)
+
+plt.plot(
+    rad, pl_fn(rad, *popt) * 1e-26,
+    ls='-', c='teal', label=r'$ax^k + c$'
+)
 
 plt.xlabel(r'Bubble radius, $R_b$ (nm)')
 plt.ylabel(r'$b$ / $\dot{F}$ (m$^3$/fsn)')
@@ -70,7 +76,7 @@ plt.xscale('log')
 plt.yscale('log')
 
 # plt.xlim([0, 140])
-# plt.ylim([1e-27, 1e-23])
+plt.ylim([1e-26, 1e-23])
 
 plt.legend()
 plt.tight_layout()
