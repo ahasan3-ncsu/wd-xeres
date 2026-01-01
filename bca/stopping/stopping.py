@@ -37,7 +37,7 @@ def create_vis(json_file, which_ion):
         label='Nuclear',
         # marker='o',
         # markersize=3,
-        color='red'
+        color=plt.cm.jet(0.8)
     )
     plt.plot(
         bin_x / 1e4, # ang -> micron
@@ -46,18 +46,22 @@ def create_vis(json_file, which_ion):
         # marker='^',
         # markersize=3,
         ls='--',
-        color='blue'
+        color=plt.cm.jet(0.2)
     )
 
+    plt.xlim([0, 9])
+    plt.ylim([0, 20])
+
     if which_ion == 'Y':
-        plt.title(r'$^{97}_{39}Y$, 101.3 MeV')
+        plt.title(r'$^{97}_{39}$Y, 101.3 MeV')
     elif which_ion == 'I':
-        plt.title(r'$^{136}_{53}I$, 74.6 MeV')
+        plt.title(r'$^{136}_{53}$I, 74.6 MeV')
 
     plt.xlabel(r'Distance ($\mu$m)')
     plt.ylabel(r'Stopping power (keV/nm)')
 
     plt.legend()
+    plt.tight_layout()
     plt.savefig('/'.join(json_file.split('/')[:-1] + [f'{which_ion}_stopping.pdf']))
 
 def main():

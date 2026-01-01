@@ -52,20 +52,21 @@ rad_uzr = list(range(100, 1001, 100))
 
 plt.figure(figsize=(5, 4))
 
-plt.errorbar(rad_this, bhom_this,
-         [lo_err, up_err], capsize=3,
-         marker='o', ls='', c='teal',
-         label='U-10Mo (This work)')
-plt.plot(rad_this, pl_fit, ls='-', c='teal')
-plt.plot(rad_this, b_dart,
-         marker='p', ls='-.', c='orange',
-         label='U-10Mo (DART)')
 plt.plot(rad_uo2, bhet_uo2,
-         marker='s', ls='--', c='blue',
+         marker='s', ls='--', c=plt.cm.jet(0.4),
          label=r'UO$_2$ (Setyawan et al.)')
 plt.plot(rad_uc, bhom_uc,
-         marker='v', ls=':', c='red',
+         marker='v', ls=':', c=plt.cm.jet(0.8),
          label=r'UC (Matthews et al.)')
+plt.plot(rad_this, b_dart,
+         marker='p', ls='-.', c=plt.cm.jet(0.6),
+         label='U-10Mo (DART)')
+
+plt.errorbar(rad_this, bhom_this,
+         [lo_err, up_err], capsize=3,
+         marker='o', ls='', c=plt.cm.jet(0.2),
+         label='U-10Mo (This work)')
+plt.plot(rad_this, pl_fit, ls='-', c=plt.cm.jet(0.2))
 
 plt.xlabel(r'Bubble radius, $R_b$ (nm)')
 plt.ylabel(r'$b$ / $\dot{F}$ (m$^3$/fsn)')

@@ -61,12 +61,12 @@ plt.figure(figsize=(5, 4))
 plt.errorbar(
     rad, b_mean,
     [lo_err, up_err], capsize=3,
-    marker='o', ls='', c='teal'
+    marker='o', ls='', c=plt.cm.jet(0.2)
 )
 
 plt.plot(
     rad, pl_fn(rad, *popt) * 1e-26,
-    ls='-', c='teal', label=r'$ax^k + c$'
+    ls='-', c=plt.cm.jet(0.8), label=r'$ax^k + c$'
 )
 
 plt.xlabel(r'Bubble radius, $R_b$ (nm)')

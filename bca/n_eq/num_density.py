@@ -178,28 +178,28 @@ for n, eos in zip(num_densities, eos_strings):
 plt.figure(figsize=(5, 4))
 
 plt.plot(Rb * 1e9, n_vdw,
-         marker='v', ls=':',
+         marker='v', ls=':', c=plt.cm.jet(0.2),
          label=r'van der Waals ($\gamma = 1.55$)')
 plt.plot(Rb * 1e9, n_ronchi,
-         marker='s', ls='-.',
+         marker='s', ls='-.', c=plt.cm.jet(0.4),
          label=r'Ronchi ($\gamma = 1.55$)')
 plt.plot(Rb * 1e9, n_b2020,
-         marker='o', ls='-.',
+         marker='o', ls='-.', c=plt.cm.jet(0.6),
          label=r'2020 Virial (mY-L, $\gamma = 1.2$)')
 plt.plot(Rb * 1e9, n_kaplun,
-         marker='o', ls='-.',
+         marker='o', ls='-.', c=plt.cm.jet(0.8),
          label=r'2020 Kaplun ($\gamma = 1.55$)')
 plt.plot(Rb * 1e9, n_b2023,
-         marker='^', ls='--',
+         marker='^', ls='--', c=plt.cm.jet(1.0),
          label=r'2023 Virial ($\gamma = 1.55$)')
 plt.plot(r_md, n_md,
-         marker='o', ls='-',
+         marker='o', ls='-', c=plt.cm.jet(0.0),
          label='MD (ADP 2023)')
 
 plt.xlabel(r'Bubble radius, $R_b$ (nm)')
 # plt.ylabel(r'Molar volume, $v$ (cm$^3$/mol)')
 # plt.ylabel(r'Xe/vac ratio, $\phi$')
-plt.ylabel(r'Number density, $n$ (m$^{-3}$)')
+plt.ylabel(r'Equilibrium Xe number density, $n_{eq}$ (m$^{-3}$)')
 
 plt.xscale('log')
 # plt.yscale('log')
