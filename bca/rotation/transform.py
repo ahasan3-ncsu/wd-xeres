@@ -76,7 +76,8 @@ t_velocities = np.array([
 ])
 
 # plotting
-fig = plt.figure(figsize=(8, 4))
+plt.style.use('../science.mplstyle')
+fig = plt.figure(figsize=(7, 4))
 
 ax1 = fig.add_subplot(121, projection='3d')
 ax1.scatter(
@@ -86,7 +87,7 @@ ax1.scatter(
 ax1.quiver(
     positions[:, 0], positions[:, 1], positions[:, 2],
     velocities[:, 0], velocities[:, 1], velocities[:, 2],
-    length=0.05, normalize=True, color=v_colo, alpha=0.7
+    length=0.1, normalize=True, color=v_colo, alpha=0.7
 )
 
 ax1.set_title(r"Original $(\mathbf{r_i}, \mathbf{v_i})$")
@@ -104,7 +105,7 @@ ax2.scatter(
 ax2.quiver(
     t_positions[:, 0], t_positions[:, 1], t_positions[:, 2],
     t_velocities[:, 0], t_velocities[:, 1], t_velocities[:, 2],
-    length=0.05, normalize=True, color=v_colo, alpha=0.7
+    length=0.1, normalize=True, color=v_colo, alpha=0.7
 )
 
 ax2.set_title(r"Transformed $(\mathbf{r_i'}, \mathbf{v_i'})$")
@@ -114,5 +115,4 @@ ax2.set_zlim([-0.4, 0.4])
 ax2.view_init(elev=10, azim=90)
 ax2.axis('off')
 
-plt.tight_layout()
 plt.savefig('rotation.pdf')

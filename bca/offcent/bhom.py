@@ -56,12 +56,12 @@ popt, pcov = curve_fit(
 )
 # print(popt)
 
-plt.figure(figsize=(5, 4))
+plt.style.use('../science.mplstyle')
 
 plt.errorbar(
     rad, b_mean,
     [lo_err, up_err], capsize=3,
-    marker='o', ls='', c=plt.cm.jet(0.2)
+    marker='o', ls='', c=plt.cm.jet(0.2), label='Data'
 )
 
 plt.plot(
@@ -75,9 +75,10 @@ plt.ylabel(r'$b$ / $\dot{F}$ (m$^3$/fsn)')
 plt.xscale('log')
 plt.yscale('log')
 
-# plt.xlim([0, 140])
 plt.ylim([1e-26, 1e-23])
 
-plt.legend()
-plt.tight_layout()
+handles, labels = plt.gca().get_legend_handles_labels()
+order = [1, 0]
+plt.legend([handles[i] for i in order], [labels[i] for i in order])
+
 plt.savefig('bhom.pdf')

@@ -29,22 +29,22 @@ def create_vis(json_file, which_ion):
     nuke_loss = nuke_loss[:first_zero+1]
     elec_loss = elec_loss[:first_zero+1]
 
-    plt.figure(figsize=(5, 4))
+    plt.style.use('../science.mplstyle')
 
     plt.plot(
         bin_x / 1e4, # ang -> micron
         nuke_loss / num_ions / bin_width / 1e2, # eV/ang -> keV/nm
         label='Nuclear',
-        # marker='o',
-        # markersize=3,
+        marker='o',
+        markersize=3,
         color=plt.cm.jet(0.8)
     )
     plt.plot(
         bin_x / 1e4, # ang -> micron
         elec_loss / num_ions / bin_width / 1e2, # eV/ang -> keV/nm
         label='Electronic',
-        # marker='^',
-        # markersize=3,
+        marker='^',
+        markersize=3,
         ls='--',
         color=plt.cm.jet(0.2)
     )
@@ -61,7 +61,6 @@ def create_vis(json_file, which_ion):
     plt.ylabel(r'Stopping power (keV/nm)')
 
     plt.legend()
-    plt.tight_layout()
     plt.savefig('/'.join(json_file.split('/')[:-1] + [f'{which_ion}_stopping.pdf']))
 
 def main():

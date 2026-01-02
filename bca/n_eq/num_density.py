@@ -175,7 +175,7 @@ for n, eos in zip(num_densities, eos_strings):
     print(f'{eos}:\t', [round(float(i / 1e30), 5) for i in n])
 
 ### Plotting
-plt.figure(figsize=(5, 4))
+plt.style.use('../science.mplstyle')
 
 plt.plot(Rb * 1e9, n_vdw,
          marker='v', ls=':', c=plt.cm.jet(0.2),
@@ -199,11 +199,9 @@ plt.plot(r_md, n_md,
 plt.xlabel(r'Bubble radius, $R_b$ (nm)')
 # plt.ylabel(r'Molar volume, $v$ (cm$^3$/mol)')
 # plt.ylabel(r'Xe/vac ratio, $\phi$')
-plt.ylabel(r'Equilibrium Xe number density, $n_{eq}$ (m$^{-3}$)')
+plt.ylabel(r'Equil. Xe number density, $n_{eq}$ (m$^{-3}$)')
 
 plt.xscale('log')
-# plt.yscale('log')
 
 plt.legend()
-plt.tight_layout()
 plt.savefig('n_vs_rad.pdf')

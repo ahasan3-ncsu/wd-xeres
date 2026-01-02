@@ -50,7 +50,8 @@ bhom_uc = [
 
 rad_uzr = list(range(100, 1001, 100))
 
-plt.figure(figsize=(5, 4))
+plt.style.use('../science.mplstyle')
+plt.figure(figsize=(3.5, 3.5))
 
 plt.plot(rad_uo2, bhet_uo2,
          marker='s', ls='--', c=plt.cm.jet(0.4),
@@ -74,9 +75,7 @@ plt.ylabel(r'$b$ / $\dot{F}$ (m$^3$/fsn)')
 plt.xscale('log')
 plt.yscale('log')
 
-# plt.xlim([0, 140])
-plt.ylim([1e-27, 1e-23])
+plt.ylim([1e-28, 1e-23])
 
 plt.legend()
-plt.tight_layout()
 plt.savefig('comp.pdf')

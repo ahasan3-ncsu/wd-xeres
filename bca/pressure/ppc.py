@@ -3,6 +3,8 @@ import json
 import itertools
 import matplotlib.pyplot as plt
 
+plt.style.use('../science.mplstyle')
+
 def main():
     data_dir = 'data'
     json_files = [f for f in os.listdir(data_dir) if f.endswith('.json')]
@@ -11,8 +13,6 @@ def main():
     markers = itertools.cycle(('o','s','p','v','x','+','^'))
     tints = itertools.cycle((0.2,0.8,0.4,0.6,0.0,1.0))
     lstyles = itertools.cycle(('-', '--', ':', '-.', (0, (5, 10))))
-
-    plt.figure(figsize=(5, 4))
 
     for jname in json_files:
         jpath = os.path.join(data_dir, jname)
@@ -58,14 +58,14 @@ def main():
         )
 
     plt.yscale('log')
-    plt.ylim([2e-9, 2e-5])
+    plt.ylim([2e-10, 2e-5])
 
     plt.xlabel(r'Relative Xe number density, $n$ / $n_{eq}$')
     plt.ylabel(r'Re-solved bubble fraction, $\chi(E, 0)$')
 
-    plt.legend(ncol=2, bbox_to_anchor=[0.5, 0.15], loc='center')
-    plt.tight_layout()
+    plt.legend(fontsize=8, ncol=2, loc='lower left')
     plt.savefig('pressure.pdf')
+    plt.close()
 
 if __name__ == '__main__':
     main()
