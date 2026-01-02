@@ -77,7 +77,7 @@ t_velocities = np.array([
 
 # plotting
 plt.style.use('../science.mplstyle')
-fig = plt.figure(figsize=(7, 4))
+fig = plt.figure(figsize=(7, 3.5))
 
 ax1 = fig.add_subplot(121, projection='3d')
 ax1.scatter(
