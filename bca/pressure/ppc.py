@@ -8,9 +8,11 @@ plt.style.use('../science.mplstyle')
 def main():
     data_dir = 'data'
     json_files = [f for f in os.listdir(data_dir) if f.endswith('.json')]
+    json_files.sort()
+    json_files = json_files[4:] + json_files[:4]
     print(json_files)
 
-    markers = itertools.cycle(('o','s','p','v','x','+','^'))
+    markers = itertools.cycle(('o','x','^','v','s','p','+'))
     tints = itertools.cycle((0.2,0.8,0.4,0.6,0.0,1.0))
     lstyles = itertools.cycle(('-', '--', ':', '-.', (0, (5, 10))))
 
@@ -38,7 +40,7 @@ def main():
 
         plt.scatter(
             P, chi,
-            marker=mark,
+            marker=mark, s=25,
             color=plt.cm.jet(tint)
         )
 

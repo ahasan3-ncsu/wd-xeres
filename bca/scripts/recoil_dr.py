@@ -2,6 +2,8 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
+plt.style.use('../science.mplstyle')
+
 def create_vis(disp_file, save_ext):
     E = [[], [], []]
     D = [[], [], []]
@@ -24,24 +26,32 @@ def create_vis(disp_file, save_ext):
                     raise ValueError('Weird atomic number!')
 
             E[i].append(energ)
-            D[i].append(sum(dr2)**0.5)
+            D[i].append(sum(dr2)**0.5 / 10) # converted to nm
 
     plt.scatter(E[0], D[0],
-                marker='s', s=5, color='red', label='U')
+                marker='s', s=5, color=plt.cm.jet(0.8),
+                label='U', rasterized=True)
     plt.scatter(E[1], D[1],
-                marker='o', s=5, color='blue', label='Mo')
+                marker='o', s=5, color=plt.cm.jet(0.2),
+                label='Mo', rasterized=True)
     plt.scatter(E[2], D[2],
-                marker='D', s=5, color='yellow', label='Xe')
+                marker='D', s=5, color='yellow',
+                label='Xe', rasterized=True)
 
     plt.xscale('log')
     plt.yscale('log')
 
-    plt.xlabel('Recoil energy (eV)')
-    plt.ylabel(r'Displacement ($\AA$)')
+    plt.xlim([1e1, 3e6])
+    plt.ylim([0.3, 3e2])
 
-    plt.legend(loc='lower right')
-    plt.tight_layout()
-    plt.savefig('/'.join(disp_file.split('/')[:-1] + [f'recoil_dr.{save_ext}']))
+    plt.xlabel('Recoil energy (eV)')
+    plt.ylabel('Displacement (nm)')
+
+    plt.legend()
+    plt.savefig(
+        '/'.join(disp_file.split('/')[:-1] + [f'recoil_dr.{save_ext}']),
+        dpi=500
+    )
 
 def main():
     file_root = sys.argv[1]

@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from toml_util import get_sphere_prop
 
+plt.style.use('../science.mplstyle')
+
 def calc(disp_file, toml_file, save_ext):
     E = []
     E_max = 0
@@ -23,12 +25,12 @@ def calc(disp_file, toml_file, save_ext):
                     E_min = energ
 
                 r2 = float(tmp[3])**2 + float(tmp[4])**2 + float(tmp[5])**2
-                R_ini.append(r2**0.5)
+                R_ini.append(r2**0.5 / 10) # nm
                 r2 = float(tmp[6])**2 + float(tmp[7])**2 + float(tmp[8])**2
-                R_fin.append(r2**0.5)
+                R_fin.append(r2**0.5 / 10) # nm
 
-    Rb = get_sphere_prop(toml_file)
-    L = 10
+    Rb = get_sphere_prop(toml_file) / 10 # nm
+    L = 1 # nm
 
     print(
         ' Total Xe recoils: ', len(R_fin), '\n',
@@ -48,34 +50,34 @@ def calc(disp_file, toml_file, save_ext):
     np_up = np.array(up)
     np_down = np.array(down)
 
-    plt.figure(figsize=(5, 4))
-
     # scatters
     plt.scatter(np_up[:, 0], np_up[:, 1],
-                marker='^', s=5, color='orangered',
-                label=r'$\mathbf{r_{i, ini}}$')
+                marker='^', s=5, color=plt.cm.jet(0.9),
+                label=r'$\mathbf{r_{i, ini}}$', rasterized=True)
     plt.scatter(np_down[:, 0], np_down[:, 1],
-                marker='v', s=5, color='orangered')
-    plt.scatter(E, R_fin, alpha=0.7,
-                marker='s', s=3, color='seagreen',
-                label=r'$\mathbf{r_{i, fin}}$')
+                marker='v', s=5, color=plt.cm.jet(0.9), rasterized=True)
+    plt.scatter(E, R_fin, alpha=0.5,
+                marker='s', s=3, color=plt.cm.jet(0.3),
+                label=r'$\mathbf{r_{i, fin}}$', rasterized=True)
 
     # horizontal lines
     plt.hlines(Rb, xmin=0.9*E_min, xmax=1.1*E_max,
             color='k', lw=1, label=r'$R_b$')
     plt.hlines(Rb + L, xmin=0.9*E_min, xmax=1.1*E_max,
-            color='crimson', ls='--', lw=1, label=r'$R_b + \lambda$')
+            color='orange', ls='--', lw=1, label=r'$R_b + \lambda$')
 
     plt.xscale('log')
 
-    plt.ylim([max(0, Rb - 40), Rb + 60])
+    plt.ylim([max(0, Rb - 4), Rb + 6])
 
     plt.xlabel('Xe recoil energy (eV)')
-    plt.ylabel(r'Distance from bubble center ($\AA$)')
+    plt.ylabel('Distance from bubble center (nm)')
 
-    plt.legend(loc='lower right')
-    plt.tight_layout()
-    plt.savefig('/'.join(disp_file.split('/')[:-1] + [f'xe_dr.{save_ext}']))
+    plt.legend(ncols=2)
+    plt.savefig(
+        '/'.join(disp_file.split('/')[:-1] + [f'xe_dr.{save_ext}']),
+        dpi=500
+    )
 
 def main():
     file_root = sys.argv[1]
