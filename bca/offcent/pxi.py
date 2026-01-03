@@ -11,6 +11,9 @@ def plot_prop(id, grid_data, prop, pnorm):
     ]
     t_data = np.array(prop_data).T
 
+    if prop == 'db':
+        t_data = t_data * 1e-30 # to make it m^3
+
     plt.figure(figsize=(6, 3))
 
     plt.imshow(t_data,
@@ -19,11 +22,14 @@ def plot_prop(id, grid_data, prop, pnorm):
                extent=(0, 9, 0, 5),
                norm=pnorm)
 
-    plt.xlabel(r'x ($\mu$m)')
-    plt.ylabel(r'w ($\mu$m)')
+    plt.xlabel(r'x ($\mu$m)', fontsize=12)
+    plt.ylabel(r'w ($\mu$m)', fontsize=12)
 
-    plt.colorbar()
-    plt.tight_layout()
+    if prop == 'db':
+        plt.colorbar(label=r'm$^3$')
+    else:
+        plt.colorbar()
+
     plt.savefig(f'{id}_{prop}.pdf')
 
 def main():
@@ -41,7 +47,7 @@ def main():
     # plot_prop(grid, 'energies', 'linear')
 
     plot_prop(id, grid, 'xi', SymLogNorm(linthresh=1e-12))
-    plot_prop(id, grid, 'db', SymLogNorm(linthresh=1e-2))
+    plot_prop(id, grid, 'db', SymLogNorm(linthresh=1e-32))
 
 if __name__ == '__main__':
     main()
