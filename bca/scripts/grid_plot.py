@@ -20,9 +20,9 @@ def plot_grid(grid_file, prop):
         grid_data = pickle.load(f)
 
     if prop == 'p':
-        grid_size = int(5e2) # 50 nm should be enough
-        num_rows = int(9e4 / grid_size) # 9 micron in width
-        num_cols = int(5e4 / grid_size) # 5 micron in height
+        grid_size = int(50) # 50 nm should be enough
+        num_rows = int(9e3 / grid_size) # 9 micron in width
+        num_cols = int(5e3 / grid_size) # 5 micron in height
 
         ion_data = [
             [0 for col in row]
@@ -36,7 +36,7 @@ def plot_grid(grid_file, prop):
                 ion_data[i][j] = grid_data[i][j]['num_ions'] / total_ions / surf_area
 
         t_data = np.array(ion_data).T
-        pnorm = SymLogNorm(linthresh=1e-11)
+        pnorm = SymLogNorm(linthresh=1e-9)
     else:
         ion_data = [
             [pfn(col, prop) for col in row]
@@ -63,11 +63,20 @@ def plot_grid(grid_file, prop):
     #                cmap='nipy_spectral',
     #                norm=pnorm)
 
-    plt.xlabel(r'x ($\mu$m)')
-    plt.ylabel(r'w ($\mu$m)')
+    plt.xlabel(r'x ($\mu$m)', fontsize=12)
+    plt.ylabel(r'w ($\mu$m)', fontsize=12)
 
-    plt.colorbar()
-    plt.tight_layout()
+    match prop:
+        case 'e':
+            cbar_label = 'eV'
+        case 'a':
+            cbar_label = 'rad'
+        case 'p':
+            cbar_label = r'nm$^{-2}$'
+        case _:
+            cbar_label = ''
+
+    plt.colorbar(label=cbar_label)
     plt.savefig(f'{grid_file[-21]}_{prop}.pdf')
 
 def main():
