@@ -1,13 +1,13 @@
 #Use with 0D geometry option only
 [options]
 name = "umo_0D_"
-track_trajectories = false
+track_trajectories = true
 track_recoils = true
 track_recoil_trajectories = false
 track_displacements = true
 track_energy_losses = false
-num_threads = 2
-num_chunks = 10
+num_threads = 4
+num_chunks = 1
 electronic_stopping_mode = "INTERPOLATED"
 mean_free_path_model = {"THRESHOLD"={density=1.5e28}}
 
@@ -25,7 +25,7 @@ m = [238.0, 95.95, 134.0]
 length_unit = "ANGSTROM"
 energy_unit = "EV"
 mass_unit = "AMU"
-N = [5, 5]
+N = [1, 0]
 m = [97.0, 136.0]
 Z = [39, 53]
 E = [101.3e6, 74.6e6]

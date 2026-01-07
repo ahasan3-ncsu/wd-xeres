@@ -12,7 +12,7 @@ def create_vis(row_file, xyz_file, toml_file):
     Z = jar[:, 1]
     pos = jar[:, 3:6]
 
-    canvas = scene.SceneCanvas(keys='interactive', show=True)
+    canvas = scene.SceneCanvas(keys='interactive', bgcolor='w', show=True)
     view = canvas.central_widget.add_view()
     view.camera = 'turntable'
 

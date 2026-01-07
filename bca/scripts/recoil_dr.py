@@ -34,9 +34,9 @@ def create_vis(disp_file, save_ext):
     plt.scatter(E[1], D[1],
                 marker='o', s=5, color=plt.cm.jet(0.2),
                 label='Mo', rasterized=True)
-    plt.scatter(E[2], D[2],
-                marker='D', s=5, color='yellow',
-                label='Xe', rasterized=True)
+    # plt.scatter(E[2], D[2],
+    #             marker='D', s=5, color='yellow',
+    #             label='Xe', rasterized=True)
 
     plt.xscale('log')
     plt.yscale('log')

@@ -39,9 +39,9 @@ def calc(disp_file, toml_file):
         label=r'$\mathbf{r_{i, fin}}$'
     )
 
-    plt.vlines(Rb, ymin=0, ymax=5e4,
+    plt.vlines(Rb, ymin=0, ymax=3e3,
             color='k', lw=1, label=r'$R_b$')
-    plt.vlines(Rb + L, ymin=0, ymax=5e4,
+    plt.vlines(Rb + L, ymin=0, ymax=3e3,
             color='orange', ls='--', lw=1, label=r'$R_b + \lambda$')
 
     plt.yscale('log')
