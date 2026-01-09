@@ -23,14 +23,14 @@ def el_sp_heat_integral(T_e):
 
 ## Supercell setup
 lat = 3.43
-Lx = 20 * lat
-Ly = 20 * lat
-Lz = 20 * lat
+Lx = 120 * lat
+Ly = 120 * lat
+Lz = 50 * lat
 R = 10 * lat
 
 # Keep N even
-Nx = 20; xMid = (Nx+1)/2
-Ny = 20; yMid = (Ny+1)/2
+Nx = 60; xMid = (Nx+1)/2
+Ny = 60; yMid = (Ny+1)/2
 Nz =  1 # thermal spike axis
 
 # Cell dimensions
@@ -51,8 +51,9 @@ def paw(i, j, k):
     r = (ai**2 + aj**2) ** 0.5
 
     ext_temp = 0
-    if r <= R:
-        ext_temp = 38e3 * (2.718281828)**(-(r/R)**2)
+    # if r <= R:
+    #     ext_temp = 35e3 * (2.718281828)**(-abs(r/R)**2)
+    ext_temp = 35e3 * (2.718281828)**(-abs(r/R))
 
     # Relaxed temperature is 400 K
     T_e = 400 + ext_temp
