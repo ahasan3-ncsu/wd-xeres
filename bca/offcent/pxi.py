@@ -4,6 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import SymLogNorm
 
+plt.rcParams.update({
+    'text.usetex': True,
+    'mathtext.fontset': 'cm'
+})
+
 def plot_prop(id, grid_data, prop, pnorm):
     prop_data = [
         [col[prop] for col in row]

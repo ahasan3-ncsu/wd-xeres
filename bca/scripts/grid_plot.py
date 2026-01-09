@@ -4,6 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import SymLogNorm
 
+plt.rcParams.update({
+    'text.usetex': True,
+    'mathtext.fontset': 'cm'
+})
+
 def pfn(col, prop):
     match prop:
         case 'n':
