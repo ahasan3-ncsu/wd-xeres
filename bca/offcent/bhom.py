@@ -66,11 +66,11 @@ plt.errorbar(
 
 plt.plot(
     rad, pl_fn(rad, *popt) * 1e-26,
-    ls='-', c=plt.cm.jet(0.8), label=r'$ax^k + c$'
+    ls='-', c=plt.cm.jet(0.8), label=r'$a R_b^k + c$'
 )
 
 plt.xlabel(r'Bubble radius, $R_b$ (nm)')
-plt.ylabel(r'$b$ / $\dot{F}$ (m$^3$/fsn)')
+plt.ylabel(r'$b$ / $\dot{F}$ (m$^3$/fission)')
 
 plt.xscale('log')
 plt.yscale('log')

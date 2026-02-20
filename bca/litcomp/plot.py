@@ -70,7 +70,7 @@ plt.errorbar(rad_this, bhom_this,
 plt.plot(rad_this, pl_fit, ls='-', c=plt.cm.jet(0.2))
 
 plt.xlabel(r'Bubble radius, $R_b$ (nm)')
-plt.ylabel(r'$b$ / $\dot{F}$ (m$^3$/fsn)')
+plt.ylabel(r'$b$ / $\dot{F}$ (m$^3$/fission)')
 
 plt.xscale('log')
 plt.yscale('log')
