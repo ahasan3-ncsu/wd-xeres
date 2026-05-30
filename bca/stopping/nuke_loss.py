@@ -3,13 +3,15 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
+from stat_util import get_mean, get_std
+
 def create_vis(json_file, which_ion):
     with open(json_file, 'r') as f:
         jar = json.load(f)
 
-    num_ions = jar['num_ions']
+    tot_ions = np.sum(jar['num_ions'])
     bin_x = np.array(jar['bin_x'])
-    nuke_loss = np.array(jar['nuke'])
+    nuke_loss = np.sum(np.array(jar['nuke']), axis=1)
 
     first_zero = 0
     for i, v in enumerate(nuke_loss):
@@ -25,7 +27,7 @@ def create_vis(json_file, which_ion):
 
     plt.plot(
         bin_x / 1e4, # ang -> micron
-        nuke_loss / num_ions / 1e6, # eV -> MeV
+        nuke_loss / tot_ions / 1e6, # eV -> MeV
         label='Local',
         # marker='o',
         # markersize=3,
@@ -33,7 +35,7 @@ def create_vis(json_file, which_ion):
     )
     plt.plot(
         bin_x / 1e4, # ang -> micron
-        cum_nuke_loss / num_ions / 1e6, # eV -> MeV
+        cum_nuke_loss / tot_ions / 1e6, # eV -> MeV
         label='Cumulative',
         # marker='s',
         # markersize=3,

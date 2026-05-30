@@ -42,16 +42,16 @@ def extract(eloss_file, json_file, toml_file, which_ion):
             data = json.load(f)
     else:
         data = {
-            'num_ions': 0,
+            'num_ions': [],
             'bin_x':    bin_centers.tolist(),
-            'nuke':     [0.0] * num_bins,
-            'elec':     [0.0] * num_bins
+            'nuke':     [[] for _ in range(num_bins)],
+            'elec':     [[] for _ in range(num_bins)]
         }
 
-    data['num_ions'] += curr_n_ions
+    data['num_ions'].append(curr_n_ions)
     for i in range(len(bin_centers)):
-        data['nuke'][i] += float(nuke_loss_per_bin[i])
-        data['elec'][i] += float(elec_loss_per_bin[i])
+        data['nuke'][i].append(float(nuke_loss_per_bin[i]))
+        data['elec'][i].append(float(elec_loss_per_bin[i]))
 
     with open(json_file, 'w') as f:
         json.dump(data, f, indent=4)

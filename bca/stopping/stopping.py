@@ -7,11 +7,11 @@ def create_vis(json_file, which_ion):
     with open(json_file, 'r') as f:
         jar = json.load(f)
 
-    num_ions = jar['num_ions']
+    tot_ions = np.sum(jar['num_ions'])
     bin_x = np.array(jar['bin_x'])
     bin_width = bin_x[1] - bin_x[0]
-    nuke_loss = np.array(jar['nuke'])
-    elec_loss = np.array(jar['elec'])
+    nuke_loss = np.sum(np.array(jar['nuke']), axis=1)
+    elec_loss = np.sum(np.array(jar['elec']), axis=1)
 
     k = 3
     for i in range(len(bin_x)//k):
@@ -33,7 +33,7 @@ def create_vis(json_file, which_ion):
 
     plt.plot(
         bin_x / 1e4, # ang -> micron
-        nuke_loss / num_ions / bin_width / 1e2, # eV/ang -> keV/nm
+        nuke_loss / tot_ions / bin_width / 1e2, # eV/ang -> keV/nm
         label='Nuclear',
         marker='o',
         markersize=3,
@@ -41,7 +41,7 @@ def create_vis(json_file, which_ion):
     )
     plt.plot(
         bin_x / 1e4, # ang -> micron
-        elec_loss / num_ions / bin_width / 1e2, # eV/ang -> keV/nm
+        elec_loss / tot_ions / bin_width / 1e2, # eV/ang -> keV/nm
         label='Electronic',
         marker='^',
         markersize=3,

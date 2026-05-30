@@ -1,16 +1,18 @@
 import sys
 import json
+import numpy as np
 
 def calc(json_file):
     with open(json_file, 'r') as f:
         jar = json.load(f)
 
-    num_ions = jar['num_ions']
-    nuke = jar['nuke']
-    elec = jar['elec']
+    num_ions = np.sum(jar['num_ions'])
+    nuke_all = np.sum(jar['nuke'])
+    elec_all = np.sum(jar['elec'])
 
-    nuke_loss = sum(nuke) / num_ions
-    elec_loss = sum(elec) / num_ions
+    # *_loss is a per ion quantity
+    nuke_loss = nuke_all / num_ions
+    elec_loss = elec_all / num_ions
     total_loss = nuke_loss + elec_loss
 
     print('nuke_loss: ', nuke_loss)
