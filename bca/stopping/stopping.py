@@ -3,50 +3,55 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
+from stat_util import get_mean, get_std
+
 def create_vis(json_file, which_ion):
     with open(json_file, 'r') as f:
         jar = json.load(f)
 
-    tot_ions = np.sum(jar['num_ions'])
+    num_ions = jar['num_ions']
     bin_x = np.array(jar['bin_x'])
     bin_width = bin_x[1] - bin_x[0]
-    nuke_loss = np.sum(np.array(jar['nuke']), axis=1)
-    elec_loss = np.sum(np.array(jar['elec']), axis=1)
+    nuke = np.array(jar['nuke'])
+    elec = np.array(jar['elec'])
 
-    k = 3
-    for i in range(len(bin_x)//k):
-        bin_x[i] = sum([bin_x[k*i+j] for j in range(k)]) / k
-        nuke_loss[i] = sum([nuke_loss[k*i+j] for j in range(k)]) / k
-        elec_loss[i] = sum([elec_loss[k*i+j] for j in range(k)]) / k
+    nuke_mean = np.array([get_mean(num_ions, i) for i in nuke])
+    nuke_std = np.array([get_std(num_ions, i) for i in nuke])
 
-    first_zero = 0
-    for i, v in enumerate(nuke_loss):
-        if v == 0.0 and elec_loss[i] == 0.0:
-            first_zero = i
-            break
-
-    bin_x = bin_x[:first_zero+1]
-    nuke_loss = nuke_loss[:first_zero+1]
-    elec_loss = elec_loss[:first_zero+1]
+    elec_mean = np.array([get_mean(num_ions, i) for i in elec])
+    elec_std = np.array([get_std(num_ions, i) for i in elec])
 
     plt.style.use('../science.mplstyle')
 
     plt.plot(
         bin_x / 1e4, # ang -> micron
-        nuke_loss / tot_ions / bin_width / 1e2, # eV/ang -> keV/nm
+        nuke_mean / bin_width / 1e2, # eV/ang -> keV/nm
         label='Nuclear',
-        marker='o',
-        markersize=3,
         color=plt.cm.jet(0.8)
     )
+    plt.fill_between(
+        bin_x / 1e4,
+        nuke_mean / bin_width / 1e2 - 2 * nuke_std / bin_width / 1e2,
+        nuke_mean / bin_width / 1e2 + 2 * nuke_std / bin_width / 1e2,
+        lw=0,
+        color=plt.cm.jet(0.8),
+        alpha=0.3
+    )
+
     plt.plot(
         bin_x / 1e4, # ang -> micron
-        elec_loss / tot_ions / bin_width / 1e2, # eV/ang -> keV/nm
-        label='Electronic',
-        marker='^',
-        markersize=3,
+        elec_mean / bin_width / 1e2, # eV/ang -> keV/nm
         ls='--',
+        label='Electronic',
         color=plt.cm.jet(0.2)
+    )
+    plt.fill_between(
+        bin_x / 1e4,
+        elec_mean / bin_width / 1e2 - 2 * elec_std / bin_width / 1e2,
+        elec_mean / bin_width / 1e2 + 2 * elec_std / bin_width / 1e2,
+        lw=0,
+        color=plt.cm.jet(0.2),
+        alpha=0.3
     )
 
     plt.xlim([0, 9])

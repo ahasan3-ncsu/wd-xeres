@@ -9,38 +9,46 @@ def create_vis(json_file, which_ion):
     with open(json_file, 'r') as f:
         jar = json.load(f)
 
-    tot_ions = np.sum(jar['num_ions'])
+    num_ions = np.array(jar['num_ions'])
     bin_x = np.array(jar['bin_x'])
-    nuke_loss = np.sum(np.array(jar['nuke']), axis=1)
+    nuke = np.array(jar['nuke'])
+    cum_nuke = np.cumsum(nuke, axis=0)
 
-    first_zero = 0
-    for i, v in enumerate(nuke_loss):
-        if v == 0.0:
-            first_zero = i
-            break
+    nuke_mean = np.array([get_mean(num_ions, i) for i in nuke])
+    nuke_std = np.array([get_std(num_ions, i) for i in nuke])
 
-    bin_x = bin_x[:first_zero+1]
-    nuke_loss = nuke_loss[:first_zero+1]
-    cum_nuke_loss = np.cumsum(nuke_loss)
+    cum_nuke_mean = np.array([get_mean(num_ions, i) for i in cum_nuke])
+    cum_nuke_std = np.array([get_std(num_ions, i) for i in cum_nuke])
 
-    plt.figure(figsize=(5, 4))
+    plt.style.use('../science.mplstyle')
 
     plt.plot(
         bin_x / 1e4, # ang -> micron
-        nuke_loss / tot_ions / 1e6, # eV -> MeV
+        nuke_mean / 1e6, # eV -> MeV
         label='Local',
-        # marker='o',
-        # markersize=3,
         color='red'
     )
+    plt.fill_between(
+        bin_x / 1e4, # ang -> micron
+        nuke_mean / 1e6 - nuke_std / 1e6, # eV -> MeV
+        nuke_mean / 1e6 + nuke_std / 1e6, # eV -> MeV
+        color='red',
+        alpha=0.2
+    )
+
     plt.plot(
         bin_x / 1e4, # ang -> micron
-        cum_nuke_loss / tot_ions / 1e6, # eV -> MeV
+        cum_nuke_mean / 1e6, # eV -> MeV
         label='Cumulative',
-        # marker='s',
-        # markersize=3,
         ls='-.',
         color='peru'
+    )
+    plt.fill_between(
+        bin_x / 1e4, # ang -> micron
+        cum_nuke_mean / 1e6 - cum_nuke_std / 1e6, # eV -> MeV
+        cum_nuke_mean / 1e6 + cum_nuke_std / 1e6, # eV -> MeV
+        color='peru',
+        alpha=0.2
     )
 
     if which_ion == 'Y':
