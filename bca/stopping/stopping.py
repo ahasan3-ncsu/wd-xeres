@@ -21,6 +21,21 @@ def create_vis(json_file, which_ion):
     elec_mean = np.array([get_mean(num_ions, i) for i in elec])
     elec_std = np.array([get_std(num_ions, i) for i in elec])
 
+    first_zero = 0
+    for i, v in enumerate(nuke_mean):
+        if v == 0.0 and elec_mean[i] == 0.0:
+            first_zero = i
+            break
+
+    k = 3
+    arrays = [bin_x, nuke_mean, nuke_std, elec_mean, elec_std]
+    for i in range(len(bin_x) // k):
+        for arr in arrays:
+            arr[i] = sum(arr[k*i + j] for j in range(k)) / k
+
+    arrays = [arr[:first_zero // k + 1] for arr in arrays]
+    bin_x, nuke_mean, nuke_std, elec_mean, elec_std = arrays
+
     plt.style.use('../science.mplstyle')
 
     plt.plot(
