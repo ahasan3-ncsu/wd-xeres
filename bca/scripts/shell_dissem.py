@@ -40,7 +40,7 @@ def main():
             continue
 
         arg_dict['sphere'] = [rad * 10, n_eq[rad] * mult]
-        arg_dict['yttrium'] = [1000, y_e * 1e6, 0.0]
+        arg_dict['yttrium'] = [5000, y_e * 1e6, 0.0]
         arg_dict['iodine'] = [0, 0.0, 0.0]
 
         irun(arg_dict, subdirpath)
