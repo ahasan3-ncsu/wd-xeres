@@ -44,8 +44,11 @@ def calc(disp_file, toml_file, xe_file):
     Rb = get_sphere_prop(toml_file) / 10 # nm
     L = 1 # nm
 
+    Dist = [abs(y - x) for x, y in zip(R_ini, R_fin)]
+
     print(
         ' Total Xe recoils: ', len(R_fin), '\n',
+        'Mean Xe displacement: ', mean(Dist), '\n',
         'Outside the sphere: ', sum(1 for x in R_fin if x > Rb), '\n',
         'Re-solved Xe: ', sum(1 for x in R_fin if x > (Rb + L))
     )

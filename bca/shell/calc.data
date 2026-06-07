@@ -1,23 +1,27 @@
 Using p0.8/ballbox_64nm_Y_5.0MeV_xenon_disp.output file...
- Total Xe recoils:  5375819 
- Outside the sphere:  149491 
+ Total Xe recoils:  5375819
+ Mean Xe displacement:  1.1940118141596503
+ Outside the sphere:  149491
  Re-solved Xe:  3681
 54.27754284571256 11.538686829010596
 
 Using p1.0/ballbox_64nm_Y_5.0MeV_displacements.output file...
- Total Xe recoils:  6889284 
- Outside the sphere:  149869 
+ Total Xe recoils:  6889284
+ Mean Xe displacement:  0.9516452917126874
+ Outside the sphere:  149869
  Re-solved Xe:  3629
 54.8598210658461 11.315286653807958
 
 Using p1.2/ballbox_64nm_Y_5.0MeV_displacements.output file...
- Total Xe recoils:  9251167 
- Outside the sphere:  163857 
+ Total Xe recoils:  9251167
+ Mean Xe displacement:  0.7881856637375502
+ Outside the sphere:  163857
  Re-solved Xe:  3880
 55.10804820932719 11.5920660709907
 
 Using p1.4/ballbox_64nm_Y_5.0MeV_displacements.output file...
- Total Xe recoils:  11671554 
- Outside the sphere:  167961 
+ Total Xe recoils:  11671554
+ Mean Xe displacement:  0.669601116921045
+ Outside the sphere:  167961
  Re-solved Xe:  3934
 56.06181841316998 10.768938453632638
